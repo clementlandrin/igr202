@@ -37,7 +37,7 @@ static const std::string SHADER_PATH ("Resources/Shaders/");
 
 static const std::string MATERIAL_PATH ("Resources/Materials/");
 
-static const std::string MATERIAL_NAME ("Brick/");
+static const std::string MATERIAL_NAME ("Metal/");
 
 static const std::string DEFAULT_MESH_FILENAME ("Resources/Models/face.off");
 
@@ -80,6 +80,8 @@ static std::shared_ptr<Material> materialPtr;
 static float zMin = -350.0;
 
 static float r = 1.0;
+
+static int textureUsing = 0.0;
 
 static float zFocus = 0.0;
 // Camera control variables
@@ -218,6 +220,11 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 		normalMapUsed = 1-normalMapUsed;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("normalMapUsed",normalMapUsed);
+	} else if (action == GLFW_PRESS && key == GLFW_KEY_X){
+		std::cout << "texture using" <<std::endl;
+		textureUsing = 1-textureUsing;
+		shaderProgramPtr->use();
+		shaderProgramPtr->set("textureUsing",textureUsing);
 	}
 }
 
@@ -403,6 +410,10 @@ void initScene (const std::string & meshFilename) {
 	materialPtr->setMetallic(0.9);
 	materialPtr->setRoughness(0.1);
 	shaderProgramPtr->set ("material.kd", materialPtr->getKd());
+	shaderProgramPtr->set ("material.albedo", materialPtr->getAlbedo());
+	shaderProgramPtr->set ("material.metallic", materialPtr->getMetallic());
+	shaderProgramPtr->set ("material.roughness", materialPtr->getRoughness());
+
 
 	GLuint albedoTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Base_Color.png",false);
 	GLuint roughnessTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Roughness.png",false);
@@ -442,8 +453,10 @@ void initScene (const std::string & meshFilename) {
 	cameraPtr->setNear (meshScale / 100.f);
 	cameraPtr->setFar (6.f * meshScale);
 
-	zMin = meshPtr->getZMin();
-	r = 1.001;
+	shaderProgramPtr->set("textureUsing",textureUsing);
+	zMin = -300.0f;
+	zFocus = -300.0f;
+	r = 1.6f;
 }
 
 void init (const std::string & meshFilename) {

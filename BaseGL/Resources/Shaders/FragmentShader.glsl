@@ -20,6 +20,9 @@ struct Material {
 	sampler2D ambientTex;
 	sampler2D toneTex;
 	sampler2D normalTex;
+	float metallic;
+	float roughness;
+	vec3 albedo;
 };
 
 uniform Material material;
@@ -29,6 +32,7 @@ uniform int shaderMode;
 uniform float zMax;
 uniform float zMin;
 uniform int normalMapUsed;
+uniform int textureUsing;
 
 in vec3 fPosition; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 in vec3 fNormal;
@@ -49,8 +53,17 @@ float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 
 	float fd = material.kd/3.14159;
 
-	float metallic = texture(material.metallicTex,fTexCoord).r;
-	float roughness = texture(material.roughnessTex,fTexCoord).r;
+	float metallic;
+	float roughness;
+
+	if(textureUsing ==1){
+		metallic = texture(material.metallicTex,fTexCoord).r;
+		roughness = texture(material.roughnessTex,fTexCoord).r;
+	} else {
+		metallic = material.metallic;
+		roughness = material.roughness;
+	}
+
 	float ambient = texture(material.ambientTex,fTexCoord).r;
 	float F = metallic + (1-metallic)*pow(1-max(0,dot(wi,wh)),5);
 	float D = pow(roughness,2)/(3.14159*pow((1+(pow(roughness,2)-1)*pow(dot(n,wh),2)),2));
@@ -62,7 +75,11 @@ float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	vec3 Li = lightSource.color * lightSource.intensity * (fs+fd) * max(dot(n, wi),0);
 	float d = distance(fLightPosition, fPosition);
 	float att = 1/(lightSource.distanceAttenuation[0]+lightSource.distanceAttenuation[1]*d+lightSource.distanceAttenuation[2]*pow(d,2));
-	return Li*att*ambient;
+	if(textureUsing==1){
+		return Li*att*ambient;
+	} else {
+		return Li*att;
+	}
 }
 
 bool criteriaSpecular(vec3 wi, vec3 wo,vec3 n, float limit){
@@ -108,7 +125,12 @@ vec3 computeOrientationTone(vec3 n, vec3 wi, vec3 wo){
 void main() {
 	vec3 fr ;
 	if (shaderMode== 0){
-		fr = texture(material.albedoTex,fTexCoord).rgb;
+		if(textureUsing == 1){
+			fr = texture(material.albedoTex,fTexCoord).rgb;
+		} else {
+			fr = material.albedo;
+		}
+		 //*TODO*//
 	} else if (shaderMode == 1) {
 		fr = vec3(0.1,0.6,0.3);
 	}

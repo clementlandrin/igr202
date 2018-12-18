@@ -177,38 +177,13 @@ CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o.provides: CMakeFiles/BaseGL.di
 CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o.provides.build: CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o
 
 
-CMakeFiles/BaseGL.dir/Sources/Material.cpp.o: CMakeFiles/BaseGL.dir/flags.make
-CMakeFiles/BaseGL.dir/Sources/Material.cpp.o: ../Sources/Material.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/BaseGL.dir/Sources/Material.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BaseGL.dir/Sources/Material.cpp.o -c /cal/homes/clandrin/igr202/BaseGL/Sources/Material.cpp
-
-CMakeFiles/BaseGL.dir/Sources/Material.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BaseGL.dir/Sources/Material.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /cal/homes/clandrin/igr202/BaseGL/Sources/Material.cpp > CMakeFiles/BaseGL.dir/Sources/Material.cpp.i
-
-CMakeFiles/BaseGL.dir/Sources/Material.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BaseGL.dir/Sources/Material.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /cal/homes/clandrin/igr202/BaseGL/Sources/Material.cpp -o CMakeFiles/BaseGL.dir/Sources/Material.cpp.s
-
-CMakeFiles/BaseGL.dir/Sources/Material.cpp.o.requires:
-
-.PHONY : CMakeFiles/BaseGL.dir/Sources/Material.cpp.o.requires
-
-CMakeFiles/BaseGL.dir/Sources/Material.cpp.o.provides: CMakeFiles/BaseGL.dir/Sources/Material.cpp.o.requires
-	$(MAKE) -f CMakeFiles/BaseGL.dir/build.make CMakeFiles/BaseGL.dir/Sources/Material.cpp.o.provides.build
-.PHONY : CMakeFiles/BaseGL.dir/Sources/Material.cpp.o.provides
-
-CMakeFiles/BaseGL.dir/Sources/Material.cpp.o.provides.build: CMakeFiles/BaseGL.dir/Sources/Material.cpp.o
-
-
 # Object files for target BaseGL
 BaseGL_OBJECTS = \
 "CMakeFiles/BaseGL.dir/Sources/Main.cpp.o" \
 "CMakeFiles/BaseGL.dir/Sources/Error.cpp.o" \
 "CMakeFiles/BaseGL.dir/Sources/Mesh.cpp.o" \
 "CMakeFiles/BaseGL.dir/Sources/MeshLoader.cpp.o" \
-"CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o" \
-"CMakeFiles/BaseGL.dir/Sources/Material.cpp.o"
+"CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o"
 
 # External object files for target BaseGL
 BaseGL_EXTERNAL_OBJECTS =
@@ -218,7 +193,6 @@ BaseGL: CMakeFiles/BaseGL.dir/Sources/Error.cpp.o
 BaseGL: CMakeFiles/BaseGL.dir/Sources/Mesh.cpp.o
 BaseGL: CMakeFiles/BaseGL.dir/Sources/MeshLoader.cpp.o
 BaseGL: CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o
-BaseGL: CMakeFiles/BaseGL.dir/Sources/Material.cpp.o
 BaseGL: CMakeFiles/BaseGL.dir/build.make
 BaseGL: External/glad/libglad.a
 BaseGL: External/glfw/src/libglfw3.a
@@ -226,7 +200,7 @@ BaseGL: /usr/lib/x86_64-linux-gnu/librt.so
 BaseGL: /usr/lib/x86_64-linux-gnu/libm.so
 BaseGL: /usr/lib/x86_64-linux-gnu/libX11.so
 BaseGL: CMakeFiles/BaseGL.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable BaseGL"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable BaseGL"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/BaseGL.dir/link.txt --verbose=$(VERBOSE)
 	/usr/bin/cmake -E copy /cal/homes/clandrin/igr202/BaseGL/build/BaseGL /cal/homes/clandrin/igr202/BaseGL
 
@@ -240,7 +214,6 @@ CMakeFiles/BaseGL.dir/requires: CMakeFiles/BaseGL.dir/Sources/Error.cpp.o.requir
 CMakeFiles/BaseGL.dir/requires: CMakeFiles/BaseGL.dir/Sources/Mesh.cpp.o.requires
 CMakeFiles/BaseGL.dir/requires: CMakeFiles/BaseGL.dir/Sources/MeshLoader.cpp.o.requires
 CMakeFiles/BaseGL.dir/requires: CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o.requires
-CMakeFiles/BaseGL.dir/requires: CMakeFiles/BaseGL.dir/Sources/Material.cpp.o.requires
 
 .PHONY : CMakeFiles/BaseGL.dir/requires
 

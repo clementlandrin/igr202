@@ -6,7 +6,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/cal/homes/clandrin/igr202/BaseGL/Sources/Error.cpp" "/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles/BaseGL.dir/Sources/Error.cpp.o"
   "/cal/homes/clandrin/igr202/BaseGL/Sources/Main.cpp" "/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles/BaseGL.dir/Sources/Main.cpp.o"
-  "/cal/homes/clandrin/igr202/BaseGL/Sources/Material.cpp" "/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles/BaseGL.dir/Sources/Material.cpp.o"
   "/cal/homes/clandrin/igr202/BaseGL/Sources/Mesh.cpp" "/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles/BaseGL.dir/Sources/Mesh.cpp.o"
   "/cal/homes/clandrin/igr202/BaseGL/Sources/MeshLoader.cpp" "/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles/BaseGL.dir/Sources/MeshLoader.cpp.o"
   "/cal/homes/clandrin/igr202/BaseGL/Sources/ShaderProgram.cpp" "/cal/homes/clandrin/igr202/BaseGL/build/CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o"

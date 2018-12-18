@@ -3272,25 +3272,9 @@ Material.h
 MeshLoader.h
 /cal/homes/clandrin/igr202/BaseGL/Sources/MeshLoader.h
 
-/cal/homes/clandrin/igr202/BaseGL/Sources/Material.cpp
-string
--
-Material.h
 /cal/homes/clandrin/igr202/BaseGL/Sources/Material.h
 stb_image.h
 /cal/homes/clandrin/igr202/BaseGL/Sources/stb_image.h
-
-/cal/homes/clandrin/igr202/BaseGL/Sources/Material.h
-glad/glad.h
--
-vector
--
-memory
--
-glm/glm.hpp
--
-glm/ext.hpp
--
 
 /cal/homes/clandrin/igr202/BaseGL/Sources/Mesh.cpp
 Mesh.h

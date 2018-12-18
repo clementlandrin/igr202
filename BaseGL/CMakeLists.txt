@@ -17,14 +17,11 @@ add_executable (
 	Sources/MeshLoader.cpp
 	Sources/ShaderProgram.h
 	Sources/ShaderProgram.cpp
-	Sources/Material.cpp
-	Sources/Material.h
-	Sources/stb_image.h
 )
 
-# Copy the shader files in the binary location.
+# Copy the shader files in the binary location. 
 
-add_custom_command(TARGET BaseGL
+add_custom_command(TARGET BaseGL 
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:BaseGL> ${CMAKE_CURRENT_SOURCE_DIR})
 
