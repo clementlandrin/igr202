@@ -81,7 +81,7 @@ static float zMin = -350.0;
 
 static float r = 1.0;
 
-static int textureUsing = 0.0;
+static int textureUsing = 0;
 
 static float zFocus = 0.0;
 // Camera control variables
