@@ -61,6 +61,7 @@ void Mesh::computeBoundingSphere (glm::vec3 & center, float & radius) const {
 }
 
 void Mesh::recomputePerVertexNormals (bool angleBased) {
+	computePlanarParameterization();
 	m_vertexNormals.clear ();
 	m_vertexTangents.clear ();
 	m_vertexBitangents.clear ();
@@ -133,7 +134,6 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 
 		uv1 = m_vertexTexCoords.at(index0);
 		uv2 = m_vertexTexCoords.at(index1);
-		std::cout << uv1.x << " "<<uv2.x<<std::endl;
 		uv3 = m_vertexTexCoords.at(index2);
 
 		deltaUV1 = uv2 - uv1;
@@ -145,6 +145,8 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 												 f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
 												 f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z));
 
+		tangent = glm::normalize(tangent);
+		
 		m_vertexTangents.at(index0) = m_vertexTangents.at(index0) + angle0*tangent;
 		m_vertexTangents.at(index1) = m_vertexTangents.at(index1) + angle1*tangent;
 		m_vertexTangents.at(index2) = m_vertexTangents.at(index2) + angle2*tangent;
@@ -152,6 +154,8 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 		bitangent = glm::vec3 (f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x),
 													 f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y),
 													 f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z));
+
+		bitangent = glm::normalize(bitangent);
 
 		m_vertexBitangents.at(index0) = m_vertexBitangents.at(index0) + angle0*bitangent;
 		m_vertexBitangents.at(index1) = m_vertexBitangents.at(index1) + angle1*bitangent;
@@ -166,7 +170,6 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 }
 
 void Mesh::init () {
-	computePlanarParameterization();
 	recomputePerVertexNormals (true);
 	glCreateBuffers (1, &m_posVbo); // Generate a GPU buffer to store the positions of the vertices
 	size_t vertexBufferSize = sizeof (glm::vec3) * m_vertexPositions.size (); // Gather the size of the buffer from the CPU-side vector

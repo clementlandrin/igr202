@@ -112,7 +112,7 @@ void main() {
 	} else if (shaderMode == 1) {
 		fr = vec3(0.1,0.6,0.3);
 	}
-	vec3 normalMap = texture(material.normalTex, fTexCoord).rgb;
+	vec3 normalMap = texture(material.normalTex, fTexCoord).xyz;
 	normalMap = normalize(normalMap*2.0 - 1.0);
 	normalMap = normalize(TBN*normalMap);
 	vec3 n;

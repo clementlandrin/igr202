@@ -299,6 +299,33 @@ Sources/Main.cpp.s:
 	$(MAKE) -f CMakeFiles/BaseGL.dir/build.make CMakeFiles/BaseGL.dir/Sources/Main.cpp.s
 .PHONY : Sources/Main.cpp.s
 
+Sources/Material.o: Sources/Material.cpp.o
+
+.PHONY : Sources/Material.o
+
+# target to build an object file
+Sources/Material.cpp.o:
+	$(MAKE) -f CMakeFiles/BaseGL.dir/build.make CMakeFiles/BaseGL.dir/Sources/Material.cpp.o
+.PHONY : Sources/Material.cpp.o
+
+Sources/Material.i: Sources/Material.cpp.i
+
+.PHONY : Sources/Material.i
+
+# target to preprocess a source file
+Sources/Material.cpp.i:
+	$(MAKE) -f CMakeFiles/BaseGL.dir/build.make CMakeFiles/BaseGL.dir/Sources/Material.cpp.i
+.PHONY : Sources/Material.cpp.i
+
+Sources/Material.s: Sources/Material.cpp.s
+
+.PHONY : Sources/Material.s
+
+# target to generate assembly for a file
+Sources/Material.cpp.s:
+	$(MAKE) -f CMakeFiles/BaseGL.dir/build.make CMakeFiles/BaseGL.dir/Sources/Material.cpp.s
+.PHONY : Sources/Material.cpp.s
+
 Sources/Mesh.o: Sources/Mesh.cpp.o
 
 .PHONY : Sources/Mesh.o
@@ -405,6 +432,9 @@ help:
 	@echo "... Sources/Main.o"
 	@echo "... Sources/Main.i"
 	@echo "... Sources/Main.s"
+	@echo "... Sources/Material.o"
+	@echo "... Sources/Material.i"
+	@echo "... Sources/Material.s"
 	@echo "... Sources/Mesh.o"
 	@echo "... Sources/Mesh.i"
 	@echo "... Sources/Mesh.s"

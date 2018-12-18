@@ -4,6 +4,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/BaseGL.dir/Sources/Mesh.cpp.o"
   "CMakeFiles/BaseGL.dir/Sources/MeshLoader.cpp.o"
   "CMakeFiles/BaseGL.dir/Sources/ShaderProgram.cpp.o"
+  "CMakeFiles/BaseGL.dir/Sources/Material.cpp.o"
   "BaseGL.pdb"
   "BaseGL"
 )
