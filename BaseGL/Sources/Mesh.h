@@ -30,6 +30,7 @@ public:
 	void recomputePerVertexNormals (bool angleBased = false);
 
 	void computePlanarParameterization();
+
 	void init ();
 	void render ();
 	void clear ();
@@ -39,11 +40,16 @@ private:
 	std::vector<glm::vec3> m_vertexNormals;
 	std::vector<glm::vec2> m_vertexTexCoords;
 	std::vector<glm::uvec3> m_triangleIndices;
+	std::vector<glm::vec3> m_vertexTangents;
+	std::vector<glm::vec3> m_vertexBitangents;
+
 	GLuint m_vao = 0;
 	GLuint m_posVbo = 0;
 	GLuint m_normalVbo = 0;
 	GLuint m_texCoordVbo = 0;
 	GLuint m_ibo = 0;
+	GLuint m_tanVbo = 0;
+	GLuint m_biVbo = 0;
 	float zMin;
 	float zMax;
 };

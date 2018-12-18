@@ -39,7 +39,7 @@ static const std::string MATERIAL_PATH ("Resources/Materials/");
 
 static const std::string MATERIAL_NAME ("Metal/");
 
-static const std::string DEFAULT_MESH_FILENAME ("Resources/Models/rhino.off");
+static const std::string DEFAULT_MESH_FILENAME ("Resources/Models/face.off");
 
 using namespace std;
 
@@ -68,6 +68,10 @@ static int numberLightUsed = 1;
 // 3 means a perspective-based X-toon rendering
 // 4 means a orientation-based X-toon rendering
 static int shaderMode = 0;
+
+// Specificies if the normal is computed thanks to the normal map
+// defaultly no
+static int normalMapUsed = 0;
 
 static std::vector<std::shared_ptr<LightSource>> lightSources(3);
 
@@ -209,6 +213,11 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 		std::cout<<"z of focus point : "<<zFocus<<std::endl;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("zFocus",zFocus);
+	} else if (action == GLFW_PRESS && key == GLFW_KEY_N){
+		std::cout << "normal mapping"<< std::endl;
+		normalMapUsed = 1-normalMapUsed;
+		shaderProgramPtr->use();
+		shaderProgramPtr->set("normalMapUsed",normalMapUsed);
 	}
 }
 
@@ -395,17 +404,19 @@ void initScene (const std::string & meshFilename) {
 	materialPtr->setRoughness(0.1);
 	shaderProgramPtr->set ("material.kd", materialPtr->getKd());
 
-	GLuint albedoTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Base_Color.png");
-	GLuint roughnessTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Roughness.png");
-	GLuint metallicTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Metallic.png");
-	GLuint ambientTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Ambient_Occlusion.png");
-	GLuint toneTex = loadTextureFromFileToGPU(MATERIAL_PATH+"Style.png");
+	GLuint albedoTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Base_Color.png",false);
+	GLuint roughnessTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Roughness.png",false);
+	GLuint metallicTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Metallic.png",false);
+	GLuint ambientTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Ambient_Occlusion.png",false);
+	GLuint normalTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Normal.png",false);
+	GLuint toneTex = loadTextureFromFileToGPU(MATERIAL_PATH+"Style.png",false);
 
 	shaderProgramPtr->set("material.albedoTex",0);
 	shaderProgramPtr->set("material.roughnessTex",1);
 	shaderProgramPtr->set("material.metallicTex",2);
 	shaderProgramPtr->set("material.ambientTex",3);
-	shaderProgramPtr->set("material.toneTex",4);
+	shaderProgramPtr->set("material.normalTex",4);
+	shaderProgramPtr->set("material.toneTex",5);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D,albedoTex);
@@ -420,6 +431,9 @@ void initScene (const std::string & meshFilename) {
 	glBindTexture(GL_TEXTURE_2D,ambientTex);
 
 	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D,normalTex);
+
+	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D,toneTex);
 
 

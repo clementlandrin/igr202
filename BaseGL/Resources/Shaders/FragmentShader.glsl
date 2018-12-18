@@ -19,6 +19,7 @@ struct Material {
 	sampler2D albedoTex;
 	sampler2D ambientTex;
 	sampler2D toneTex;
+	sampler2D normalTex;
 };
 
 uniform Material material;
@@ -27,6 +28,7 @@ uniform int numberLightUsed;
 uniform int shaderMode;
 uniform float zMax;
 uniform float zMin;
+uniform int normalMapUsed;
 
 in vec3 fPosition; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 in vec3 fNormal;
@@ -36,6 +38,7 @@ in vec3 fFillLightPosition;
 in vec3 fBackLightPosition;
 in float fDFocal;
 in float fDEye;
+in mat3 TBN;
 
 out vec4 colorResponse; // Shader output: the color response attached to this fragment
 
@@ -84,7 +87,7 @@ vec3 computeNPR(vec3 n,vec3 fr){
 	} else {
 		criteria = criteriaSpecular(wiKey,wo,n,limit)||criteriaSpecular(wiFill,wo,n,limit)||criteriaSpecular(wiBack,wo,n,limit);
 	}
-	if(abs(n[2])<0.2){
+	if(abs(n[2])<0.4){
 		return vec3(0,0,0);
 	} else if(criteria){
 		return vec3(1,1,1);
@@ -109,7 +112,15 @@ void main() {
 	} else if (shaderMode == 1) {
 		fr = vec3(0.1,0.6,0.3);
 	}
-	vec3 n = normalize (fNormal);
+	vec3 normalMap = texture(material.normalTex, fTexCoord).rgb;
+	normalMap = normalize(normalMap*2.0 - 1.0);
+	normalMap = normalize(TBN*normalMap);
+	vec3 n;
+	if(normalMapUsed==1){
+		n = normalize (normalMap);
+	} else {
+		n = normalize(fNormal);
+	}
 	if(shaderMode == 0){
 		float LiKey = computeLiFromLight(keyLight, fKeyLightPosition, n);
 		vec3 radiance =  fr;
