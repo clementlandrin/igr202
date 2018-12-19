@@ -18,19 +18,18 @@ out vec3 fFillLightPosition;
 out vec3 fBackLightPosition;
 out float fDFocal;
 out float fDEye;
-out mat3 TBN;
+out vec3 fTangent, fBitangent;
 
 void main() {
 	vec4 p = modelViewMat * vec4 (vPosition, 1.0);
     gl_Position =  projectionMat * p; // mandatory to fire rasterization properly
-		vec3 T = normalize(normalMat * vec4 (vTangent, 1.0)).xyz;
-		vec3 B = normalize(normalMat * vec4 (vBitangent, 1.0)).xyz;
+		fTangent = normalize(normalMat * vec4 (vTangent, 1.0)).xyz;
+		fBitangent = normalize(normalMat * vec4 (vBitangent, 1.0)).xyz;
 		vec4 n = normalMat * vec4 (vNormal, 1.0);
     fPosition = p.xyz;
     fNormal = normalize (n.xyz);
-		//T = normalize(T-dot(T,fNormal)*fNormal);
-		//vec3 B = normalize(cross(fNormal,T));
-		TBN = mat3 (T,B,fNormal);
+		//fTangent = normalize(fTangent-dot(fTangent,fNormal)*fNormal);
+		//fBitangent = normalize(cross(fNormal,fTangent));
     fTexCoord = vTexCoord;
 		fKeyLightPosition = vec3(modelViewMat * vec4(keyLightPosition,1));
 		fFillLightPosition = vec3(modelViewMat * vec4(fillLightPosition,1));

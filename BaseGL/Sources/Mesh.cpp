@@ -50,6 +50,87 @@ void Mesh::computePlanarParameterization(){
 	zMax = maxZ;
 }
 
+
+void Mesh::laplacianFilter(){
+	//*TODO*//
+	glm::vec3 p0 ;
+	glm::vec3 p1 ;
+	glm::vec3 p2 ;
+	int index0;
+	int index1;
+	int index2;
+	float angle0;
+	float angle1;
+	float angle2;
+
+	std::vector<glm::vec4> vertexLaplacianPosAngle;
+	vertexLaplacianPosAngle.resize(m_vertexPositions.size(),glm::vec4(0.0));
+
+	std::vector<std::vector<int>> vertexNeighborhood;
+	vertexNeighborhood.resize(m_vertexPositions.size());
+
+	std::vector<std::vector<float>> vertexCotangent;
+	vertexCotangent.resize(m_vertexPositions.size());
+
+	for (int i = 0; i < m_triangleIndices.size() ; i++){
+		// normal computation
+		index0 = m_triangleIndices.at(i)[0];
+		p0 = m_vertexPositions.at(index0);
+		index1 = m_triangleIndices.at(i)[1];
+		p1 = m_vertexPositions.at(index1);
+		index2 = m_triangleIndices.at(i)[2];
+		p2 = m_vertexPositions.at(index2);
+		angle0 = std::acos(dot(p1-p0,p2-p0)/(length(p1-p0)*length(p2-p0)));
+		angle1 = std::acos(dot(p0-p1,p2-p1)/(length(p0-p1)*length(p2-p1)));
+		angle2 = std::acos(dot(p0-p2,p1-p2)/(length(p0-p2)*length(p1-p2)));
+
+		(vertexNeighborhood.at(index0)).push_back(index1);
+		(vertexNeighborhood.at(index0)).push_back(index2);
+
+		(vertexNeighborhood.at(index1)).push_back(index0);
+		(vertexNeighborhood.at(index1)).push_back(index2);
+
+		(vertexNeighborhood.at(index2)).push_back(index0);
+		(vertexNeighborhood.at(index2)).push_back(index1);
+
+		(vertexCotangent.at(index0)).push_back(angle2);
+		(vertexNeighborhood.at(index0)).push_back(angle1);
+
+		(vertexNeighborhood.at(index1)).push_back(angle2);
+		(vertexNeighborhood.at(index1)).push_back(angle0);
+
+		(vertexNeighborhood.at(index2)).push_back(angle1);
+		(vertexNeighborhood.at(index2)).push_back(angle0);
+		//*TODO*//
+		vertexLaplacianPosAngle.at(index0) = vertexLaplacianPosAngle.at(index0) + glm::vec4((p1-p0)*angle1+(p2-p0)*angle2,angle1+angle2);
+		vertexLaplacianPosAngle.at(index1) = vertexLaplacianPosAngle.at(index1) + glm::vec4((p0-p1)*angle0+(p2-p1)*angle2,angle0+angle2);
+		vertexLaplacianPosAngle.at(index2) = vertexLaplacianPosAngle.at(index2) + glm::vec4((p0-p2)*angle0+(p1-p2)*angle1,angle0+angle1);
+	}
+	float angleTot;
+	for (int i = 0; i< m_vertexPositions.size(); i++){
+		angleTot = vertexLaplacianPosAngle.at(i)[3];
+		vertexLaplacianPosAngle.at(i) =  glm::vec4(vertexLaplacianPosAngle.at(i)[0]/angleTot,
+																			vertexLaplacianPosAngle.at(i)[1]/angleTot,
+																			vertexLaplacianPosAngle.at(i)[2]/angleTot,
+																			angleTot);
+	}
+
+	for (int i = 0; i < m_vertexPositions.size(); i++){
+			m_vertexPositions.at(i) = m_vertexPositions.at(i) + glm::vec3(vertexLaplacianPosAngle.at(i)[0],
+																vertexLaplacianPosAngle.at(i)[1],
+																vertexLaplacianPosAngle.at(i)[2]);
+	}
+
+	recomputePerVertexNormals(true);
+	size_t vertexBufferSize = sizeof (glm::vec3) * m_vertexPositions.size (); // Gather the size of the buffer from the CPU-side vector
+	size_t texCoordBufferSize = sizeof (glm::vec2) * m_vertexTexCoords.size ();
+	glNamedBufferSubData (m_normalVbo, 0, vertexBufferSize, m_vertexNormals.data ());
+	glNamedBufferSubData (m_texCoordVbo, 0, texCoordBufferSize, m_vertexTexCoords.data ());
+	glNamedBufferSubData (m_posVbo, 0, vertexBufferSize, m_vertexPositions.data ());
+	glNamedBufferSubData (m_tanVbo, 0, vertexBufferSize, m_vertexTangents.data ());
+	glNamedBufferSubData (m_biVbo, 0, vertexBufferSize, m_vertexBitangents.data ());
+}
+
 void Mesh::computeBoundingSphere (glm::vec3 & center, float & radius) const {
 	center = glm::vec3 (0.0);
 	radius = 0.f;

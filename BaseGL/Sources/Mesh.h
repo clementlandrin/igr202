@@ -24,12 +24,15 @@ public:
 	inline std::vector<glm::uvec3> & triangleIndices () { return m_triangleIndices; }
 	inline float getZMin(){return this->zMin;};
 	inline float getZMax(){return this->zMax;};
+
 	/// Compute the parameters of a sphere which bounds the mesh
 	void computeBoundingSphere (glm::vec3 & center, float & radius) const;
 
 	void recomputePerVertexNormals (bool angleBased = false);
 
 	void computePlanarParameterization();
+
+	void laplacianFilter();
 
 	void init ();
 	void render ();
@@ -42,6 +45,7 @@ private:
 	std::vector<glm::uvec3> m_triangleIndices;
 	std::vector<glm::vec3> m_vertexTangents;
 	std::vector<glm::vec3> m_vertexBitangents;
+	std::vector<std::vector<int>> m_vertexNeighborhood;
 
 	GLuint m_vao = 0;
 	GLuint m_posVbo = 0;

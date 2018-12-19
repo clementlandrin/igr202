@@ -42,7 +42,7 @@ in vec3 fFillLightPosition;
 in vec3 fBackLightPosition;
 in float fDFocal;
 in float fDEye;
-in mat3 TBN;
+in vec3 fTangent, fBitangent;
 
 out vec4 colorResponse; // Shader output: the color response attached to this fragment
 
@@ -134,14 +134,14 @@ void main() {
 	} else if (shaderMode == 1) {
 		fr = vec3(0.1,0.6,0.3);
 	}
-	vec3 normalMap = texture(material.normalTex, fTexCoord).xyz;
-	normalMap = normalize(normalMap*2.0 - 1.0);
-	normalMap = normalize(TBN*normalMap);
-	vec3 n;
+	vec3 normalMap = normalize(texture(material.normalTex, fTexCoord).rgb);
+	//normalMap = normalize(normalMap*2.0 - 1.0);
+	vec3 tangent = normalize(fTangent);
+	vec3 bitangent = normalize(fBitangent);
+	vec3 n = normalize(fNormal);
+	normalMap = normalize(mat3(tangent,bitangent,n)*normalMap);
 	if(normalMapUsed==1){
 		n = normalize (normalMap);
-	} else {
-		n = normalize(fNormal);
 	}
 	if(shaderMode == 0){
 		float LiKey = computeLiFromLight(keyLight, fKeyLightPosition, n);
