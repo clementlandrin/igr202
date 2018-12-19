@@ -29,7 +29,7 @@ void main() {
     fPosition = p.xyz;
     fNormal = normalize (n.xyz);
 		//T = normalize(T-dot(T,fNormal)*fNormal);
-		//vec3 B = cross(fNormal,T);
+		//vec3 B = normalize(cross(fNormal,T));
 		TBN = mat3 (T,B,fNormal);
     fTexCoord = vTexCoord;
 		fKeyLightPosition = vec3(modelViewMat * vec4(keyLightPosition,1));
@@ -37,8 +37,8 @@ void main() {
 		fBackLightPosition = vec3(modelViewMat * vec4(backLightPosition,1));
 		fDFocal = clamp(1 - log(p.z/zMin)/log(r),0.0,1.0);
 		if(p.z<zFocus){
-			fDEye = clamp(1 - log(p.z/(zFocus-zMin))/log((zFocus-r*zMin)/(zFocus-zMin)),0.0,1.0);
+			fDEye = clamp(1 - log(distance(p.xyz,vec3(0,0,0))/(zFocus-zMin))/log((zFocus-r*zMin)/(zFocus-zMin)),0.0,1.0);
 		} else {
-			fDEye = clamp(log(p.z/(zFocus+r*zMin))/log((zFocus+zMin)/(zFocus+r*zMin)),0.0,1.0);
+			fDEye = clamp(log(distance(p.xyz,vec3(0,0,0))/(zFocus+r*zMin))/log((zFocus+zMin)/(zFocus+r*zMin)),0.0,1.0);
 		}
 }

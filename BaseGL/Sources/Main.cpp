@@ -37,7 +37,7 @@ static const std::string SHADER_PATH ("Resources/Shaders/");
 
 static const std::string MATERIAL_PATH ("Resources/Materials/");
 
-static const std::string MATERIAL_NAME ("Metal/");
+static const std::string MATERIAL_NAME ("Wood/");
 
 static const std::string DEFAULT_MESH_FILENAME ("Resources/Models/face.off");
 
@@ -206,7 +206,7 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("r",r);
 	} else if (action == GLFW_PRESS && key == GLFW_KEY_D){
-		zFocus = min(zFocus - meshScale/10,r*zMin);
+		zFocus = min(zFocus - meshScale/10,0.0f);
 		std::cout<<"z of focus point : "<<zFocus<<std::endl;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("zFocus",zFocus);
@@ -419,7 +419,7 @@ void initScene (const std::string & meshFilename) {
 	GLuint roughnessTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Roughness.png",false);
 	GLuint metallicTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Metallic.png",false);
 	GLuint ambientTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Ambient_Occlusion.png",false);
-	GLuint normalTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Normal.png",false);
+	GLuint normalTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Normal.png",true);
 	GLuint toneTex = loadTextureFromFileToGPU(MATERIAL_PATH+"Style.png",false);
 
 	shaderProgramPtr->set("material.albedoTex",0);
@@ -455,7 +455,7 @@ void initScene (const std::string & meshFilename) {
 
 	shaderProgramPtr->set("textureUsing",textureUsing);
 	zMin = -300.0f;
-	zFocus = -300.0f;
+	zFocus = -80.0f;
 	r = 1.6f;
 }
 

@@ -134,7 +134,6 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 
 		uv1 = m_vertexTexCoords.at(index0);
 		uv2 = m_vertexTexCoords.at(index1);
-		std::cout << uv1.x << " "<<uv2.x<<std::endl;
 		uv3 = m_vertexTexCoords.at(index2);
 
 		deltaUV1 = uv2 - uv1;
