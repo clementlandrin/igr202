@@ -43,7 +43,6 @@ in vec3 fBackLightPosition;
 in float fDFocal;
 in float fDEye;
 in vec3 fTangent, fBitangent;
-
 out vec4 colorResponse; // Shader output: the color response attached to this fragment
 
 float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
@@ -138,9 +137,8 @@ void main() {
 	vec3 tangent = normalize(fTangent);
 	vec3 bitangent = normalize(fBitangent);
 	vec3 n = normalize(fNormal);
-	normalMap = normalize(mat3(tangent,bitangent,n)*normalMap);
 	if(normalMapUsed==1){
-		n = normalize (normalMap);
+		n = normalize(mat3(tangent,bitangent,n)*normalMap);
 	}
 	if(shaderMode == 0){
 		float LiKey = computeLiFromLight(keyLight, fKeyLightPosition, n);

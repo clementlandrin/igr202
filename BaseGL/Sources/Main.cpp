@@ -37,7 +37,7 @@ static const std::string SHADER_PATH ("Resources/Shaders/");
 
 static const std::string MATERIAL_PATH ("Resources/Materials/");
 
-static const std::string MATERIAL_NAME ("Wood/");
+static const std::string MATERIAL_NAME ("Metal/");
 
 static const std::string DEFAULT_MESH_FILENAME ("Resources/Models/face.off");
 

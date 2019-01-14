@@ -222,20 +222,16 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 
 		f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
-		tangent = glm::vec3 (f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x),
-												 f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
-												 f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z));
+		tangent = (edge1 * deltaUV2.y - edge2 * deltaUV1.y) * f;
 
-		tangent = glm::normalize(tangent);
+		//tangent = glm::normalize(tangent);
 		m_vertexTangents.at(index0) = m_vertexTangents.at(index0) + angle0*tangent;
 		m_vertexTangents.at(index1) = m_vertexTangents.at(index1) + angle1*tangent;
 		m_vertexTangents.at(index2) = m_vertexTangents.at(index2) + angle2*tangent;
 
-		bitangent = glm::vec3 (f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x),
-													 f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y),
-													 f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z));
+		bitangent = (edge2 * deltaUV1.x - edge1 * deltaUV2.x) * f;
 
-		bitangent = glm::normalize(bitangent);
+		//bitangent = glm::normalize(bitangent);
 		m_vertexBitangents.at(index0) = m_vertexBitangents.at(index0) + angle0*bitangent;
 		m_vertexBitangents.at(index1) = m_vertexBitangents.at(index1) + angle1*bitangent;
 		m_vertexBitangents.at(index2) = m_vertexBitangents.at(index2) + angle2*bitangent;
@@ -243,8 +239,11 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 
 	for(int i = 0; i<m_vertexPositions.size();i++){
 		m_vertexNormals.at(i) = normalize(m_vertexNormals.at(i));
+		glm::vec3 n = m_vertexNormals.at(i);
 		m_vertexTangents.at(i) = normalize(m_vertexTangents.at(i));
+		glm::vec3 t = normalize(m_vertexTangents.at(i));
 		m_vertexBitangents.at(i) = normalize(m_vertexBitangents.at(i));
+		m_vertexTangents.at(i) = normalize(t - n * glm::dot(n,t));
 	}
 }
 
