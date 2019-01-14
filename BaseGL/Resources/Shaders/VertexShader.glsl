@@ -22,14 +22,14 @@ out vec3 fTangent, fBitangent;
 
 void main() {
 	vec4 p = modelViewMat * vec4 (vPosition, 1.0);
+	vec4 n = normalMat * vec4 (vNormal, 1.0);
     gl_Position =  projectionMat * p; // mandatory to fire rasterization properly
-		fTangent = normalize(normalMat * vec4 (vTangent, 1.0)).xyz;
-		fBitangent = normalize(normalMat * vec4 (vBitangent, 1.0)).xyz;
-		vec4 n = normalMat * vec4 (vNormal, 1.0);
+		fTangent = (normalMat * vec4 (vTangent, 0.0)).xyz;
+		fTangent = normalize(fTangent);
+		fBitangent = (normalMat * vec4 (vBitangent, 0.0)).xyz;
+		fBitangent = normalize(fBitangent);
     fPosition = p.xyz;
     fNormal = normalize (n.xyz);
-		//fTangent = normalize(fTangent-dot(fTangent,fNormal)*fNormal);
-		//fBitangent = normalize(cross(fNormal,fTangent));
     fTexCoord = vTexCoord;
 		fKeyLightPosition = vec3(modelViewMat * vec4(keyLightPosition,1));
 		fFillLightPosition = vec3(modelViewMat * vec4(fillLightPosition,1));

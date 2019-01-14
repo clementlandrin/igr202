@@ -135,7 +135,6 @@ void main() {
 		fr = vec3(0.1,0.6,0.3);
 	}
 	vec3 normalMap = normalize(texture(material.normalTex, fTexCoord).rgb);
-	//normalMap = normalize(normalMap*2.0 - 1.0);
 	vec3 tangent = normalize(fTangent);
 	vec3 bitangent = normalize(fBitangent);
 	vec3 n = normalize(fNormal);
