@@ -50,9 +50,7 @@ void Mesh::computePlanarParameterization(){
 	zMax = maxZ;
 }
 
-
-void Mesh::laplacianFilter(){
-	//*TODO*//
+void Mesh::laplacianFilter(float alpha, bool cotangentWeights){
 	glm::vec3 p0 ;
 	glm::vec3 p1 ;
 	glm::vec3 p2 ;
@@ -62,63 +60,66 @@ void Mesh::laplacianFilter(){
 	float angle0;
 	float angle1;
 	float angle2;
+	float cotan0;
+	float cotan1;
+	float cotan2;
 
-	std::vector<glm::vec4> vertexLaplacianPosAngle;
-	vertexLaplacianPosAngle.resize(m_vertexPositions.size(),glm::vec4(0.0));
-
-	std::vector<std::vector<int>> vertexNeighborhood;
-	vertexNeighborhood.resize(m_vertexPositions.size());
+	std::vector<std::vector<glm::vec3>> vertexDelta;
+	vertexDelta.resize(m_vertexPositions.size());
 
 	std::vector<std::vector<float>> vertexCotangent;
 	vertexCotangent.resize(m_vertexPositions.size());
 
-	for (int i = 0; i < m_triangleIndices.size() ; i++){
-		// normal computation
+	for (int i = 0; i<m_triangleIndices.size(); i++){
 		index0 = m_triangleIndices.at(i)[0];
-		p0 = m_vertexPositions.at(index0);
 		index1 = m_triangleIndices.at(i)[1];
-		p1 = m_vertexPositions.at(index1);
 		index2 = m_triangleIndices.at(i)[2];
+		p0 = m_vertexPositions.at(index0);
+		p1 = m_vertexPositions.at(index1);
 		p2 = m_vertexPositions.at(index2);
+
 		angle0 = std::acos(dot(p1-p0,p2-p0)/(length(p1-p0)*length(p2-p0)));
 		angle1 = std::acos(dot(p0-p1,p2-p1)/(length(p0-p1)*length(p2-p1)));
 		angle2 = std::acos(dot(p0-p2,p1-p2)/(length(p0-p2)*length(p1-p2)));
+		cotan0 = min(abs(1/tan(angle0)),10.0f);
+		cotan1 = min(abs(1/tan(angle1)),10.0f);
+		cotan2 = min(abs(1/tan(angle2)),10.0f);
 
-		(vertexNeighborhood.at(index0)).push_back(index1);
-		(vertexNeighborhood.at(index0)).push_back(index2);
+		(vertexCotangent.at(index0)).push_back(cotan2);
+		(vertexDelta.at(index0)).push_back(p1-p0);
+		(vertexCotangent.at(index0)).push_back(cotan1);
+		(vertexDelta.at(index0)).push_back(p2-p0);
 
-		(vertexNeighborhood.at(index1)).push_back(index0);
-		(vertexNeighborhood.at(index1)).push_back(index2);
+		(vertexCotangent.at(index1)).push_back(cotan2);
+		(vertexDelta.at(index1)).push_back(p0-p1);
+		(vertexCotangent.at(index1)).push_back(cotan0);
+		(vertexDelta.at(index1)).push_back(p2-p1);
 
-		(vertexNeighborhood.at(index2)).push_back(index0);
-		(vertexNeighborhood.at(index2)).push_back(index1);
-
-		(vertexCotangent.at(index0)).push_back(angle2);
-		(vertexNeighborhood.at(index0)).push_back(angle1);
-
-		(vertexNeighborhood.at(index1)).push_back(angle2);
-		(vertexNeighborhood.at(index1)).push_back(angle0);
-
-		(vertexNeighborhood.at(index2)).push_back(angle1);
-		(vertexNeighborhood.at(index2)).push_back(angle0);
-		//*TODO*//
-		vertexLaplacianPosAngle.at(index0) = vertexLaplacianPosAngle.at(index0) + glm::vec4((p1-p0)*angle1+(p2-p0)*angle2,angle1+angle2);
-		vertexLaplacianPosAngle.at(index1) = vertexLaplacianPosAngle.at(index1) + glm::vec4((p0-p1)*angle0+(p2-p1)*angle2,angle0+angle2);
-		vertexLaplacianPosAngle.at(index2) = vertexLaplacianPosAngle.at(index2) + glm::vec4((p0-p2)*angle0+(p1-p2)*angle1,angle0+angle1);
-	}
-	float angleTot;
-	for (int i = 0; i< m_vertexPositions.size(); i++){
-		angleTot = vertexLaplacianPosAngle.at(i)[3];
-		vertexLaplacianPosAngle.at(i) =  glm::vec4(vertexLaplacianPosAngle.at(i)[0]/angleTot,
-																			vertexLaplacianPosAngle.at(i)[1]/angleTot,
-																			vertexLaplacianPosAngle.at(i)[2]/angleTot,
-																			angleTot);
+		(vertexCotangent.at(index2)).push_back(cotan1);
+		(vertexDelta.at(index2)).push_back(p0-p2);
+		(vertexCotangent.at(index2)).push_back(cotan0);
+		(vertexDelta.at(index2)).push_back(p1-p2);
 	}
 
-	for (int i = 0; i < m_vertexPositions.size(); i++){
-			m_vertexPositions.at(i) = m_vertexPositions.at(i) + glm::vec3(vertexLaplacianPosAngle.at(i)[0],
-																vertexLaplacianPosAngle.at(i)[1],
-																vertexLaplacianPosAngle.at(i)[2]);
+	for (int i = 0; i<m_vertexPositions.size();i++){
+		float weight = 0.0;
+		for(int j = 0; j<(vertexCotangent.at(i)).size(); j++){
+			if(cotangentWeights){
+				weight = weight + (vertexCotangent.at(i)).at(j);
+			} else {
+				weight = weight + 1.0;
+			}
+		}
+		glm::vec3 delta = glm::vec3(0.0);
+		float kWeight = 1.0f;
+		for(int k = 0; k<(vertexDelta.at(i)).size(); k++){
+			if(cotangentWeights){
+				kWeight = (vertexCotangent.at(i)).at(k);
+			}
+			delta = delta + alpha * kWeight*(vertexDelta.at(i)).at(k);
+		}
+		delta = delta / weight;
+		m_vertexPositions.at(i) = m_vertexPositions.at(i) + delta;
 	}
 
 	recomputePerVertexNormals(true);

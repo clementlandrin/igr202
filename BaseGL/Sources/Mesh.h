@@ -34,6 +34,8 @@ public:
 
 	void laplacianFilter();
 
+	void laplacianFilter(float alpha = 0.5, bool cotangentWeights = true);
+
 	void init ();
 	void render ();
 	void clear ();

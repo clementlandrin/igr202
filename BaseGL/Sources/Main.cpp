@@ -225,8 +225,12 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 		textureUsing = 1-textureUsing;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("textureUsing",textureUsing);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_L){
-		meshPtr->laplacianFilter();
+	} else if (action == GLFW_PRESS && key == GLFW_KEY_KP_0){
+		meshPtr->laplacianFilter(0.1, true);
+	} else if (action == GLFW_PRESS && key == GLFW_KEY_KP_1){
+		meshPtr->laplacianFilter(0.5, true);
+	} else if (action == GLFW_PRESS && key == GLFW_KEY_KP_2){
+		meshPtr->laplacianFilter(1.0, true);
 	}
 }
 
