@@ -231,6 +231,10 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 		meshPtr->laplacianFilter(0.5, true);
 	} else if (action == GLFW_PRESS && key == GLFW_KEY_KP_2){
 		meshPtr->laplacianFilter(1.0, true);
+	} else if (action == GLFW_PRESS && key == GLFW_KEY_S){
+		meshPtr->simplify(32);
+	} else if (action == GLFW_PRESS && key == GLFW_KEY_A){
+		meshPtr->adaptiveSimplify(5);
 	}
 }
 

@@ -32,15 +32,20 @@ public:
 
 	void computePlanarParameterization();
 
-	void laplacianFilter();
-
 	void laplacianFilter(float alpha = 0.5, bool cotangentWeights = true);
+
+	void simplify (unsigned int resolution);
+
+	void adaptiveSimplify(unsigned int numOfPerLeafVertices);
 
 	void init ();
 	void render ();
 	void clear ();
 
 private:
+	void computeMinMaxCoordinates();
+
+	void push_buffers();
 	std::vector<glm::vec3> m_vertexPositions;
 	std::vector<glm::vec3> m_vertexNormals;
 	std::vector<glm::vec2> m_vertexTexCoords;
@@ -58,6 +63,10 @@ private:
 	GLuint m_biVbo = 0;
 	float zMin;
 	float zMax;
+	float xMin;
+	float xMax;
+	float yMin;
+	float yMax;
 };
 
 #endif // MESH_H

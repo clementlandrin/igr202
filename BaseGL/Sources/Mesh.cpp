@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 
 #include "Mesh.h"
+#include "Octree.h"
 
 #include <cmath>
 #include <algorithm>
@@ -11,7 +12,7 @@ Mesh::~Mesh () {
 	clear ();
 }
 
-void Mesh::computePlanarParameterization(){
+void Mesh::computeMinMaxCoordinates(){
 	float maxX = m_vertexPositions.at(0)[0];
 	float maxY = m_vertexPositions.at(0)[1];
 	float maxZ = m_vertexPositions.at(0)[2];
@@ -40,14 +41,110 @@ void Mesh::computePlanarParameterization(){
 		}
 	}
 
-	m_vertexTexCoords.resize(m_vertexPositions.size());
-	for(int i = 0; i<m_vertexPositions.size();i++){
-		m_vertexTexCoords.at(i) = glm::vec2((m_vertexPositions.at(i)[0]-minX)/(maxX-minX),
-																	      (m_vertexPositions.at(i)[1]-minY)/(maxY-minY));
+		zMin = minZ;
+		zMax = maxZ;
+		xMin = minX;
+		xMax = maxX;
+		yMin = minY;
+		yMax = maxY;
+}
+
+void Mesh::push_buffers(){
+	size_t vertexBufferSize = sizeof (glm::vec3) * m_vertexPositions.size (); // Gather the size of the buffer from the CPU-side vector
+	size_t texCoordBufferSize = sizeof (glm::vec2) * m_vertexTexCoords.size ();
+	glNamedBufferSubData (m_normalVbo, 0, vertexBufferSize, m_vertexNormals.data ());
+	glNamedBufferSubData (m_texCoordVbo, 0, texCoordBufferSize, m_vertexTexCoords.data ());
+	glNamedBufferSubData (m_posVbo, 0, vertexBufferSize, m_vertexPositions.data ());
+	glNamedBufferSubData (m_tanVbo, 0, vertexBufferSize, m_vertexTangents.data ());
+	glNamedBufferSubData (m_biVbo, 0, vertexBufferSize, m_vertexBitangents.data ());
+}
+
+void Mesh::adaptiveSimplify(unsigned int numOfPerLeafVertices){
+	Octree * octree = new Octree();
+	while(octree->canBeSubdivided()){
+		for(int i = 0; i<m_vertexPositions.size(); i++){
+			//octree->subdivide(m_vertexPositions.at(i));
+		}
+	}
+}
+
+void Mesh::simplify(unsigned int resolution){
+	std::vector<int> perVertexCellIndices;
+	std::vector<glm::vec3> perCellVertexPositions;
+	std::vector<glm::vec3> perCellVertexNormals;
+	std::vector<int> perCellVertexNumbers;
+	perVertexCellIndices.resize(m_vertexPositions.size());
+	perCellVertexPositions.resize(resolution*resolution*resolution, glm::vec3(0.0));
+	perCellVertexNormals.resize(resolution*resolution*resolution, glm::vec3(0.0));
+	perCellVertexNumbers.resize(resolution*resolution*resolution, 0);
+
+	float maxX = xMax +(xMax-xMin)/100.0;
+	float minX = xMin -(xMax-xMin)/100.0;
+
+	float maxY = yMax +(yMax-yMin)/100.0;
+	float minY = yMin -(yMax-yMin)/100.0;
+
+	float maxZ = zMax +(zMax-zMin)/100.0;
+	float minZ = zMin -(zMax-zMin)/100.0;
+
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec3 h = glm::vec3((xMax-xMin)/(resolution-1),(yMax-yMin)/(resolution-1),(zMax-zMin)/(resolution-1));
+	for (int i = 0; i<m_vertexPositions.size(); i++){
+		position = m_vertexPositions.at(i);
+		normal = m_vertexNormals.at(i);
+		int indexX = int((position.x-xMin)/h.x);
+		int indexY = int((position.y-yMin)/h.y);
+		int indexZ = int((position.z-zMin)/h.z);
+		int cellIndex = indexX*resolution*resolution+indexY*resolution+indexZ;
+		perCellVertexPositions.at(cellIndex) = perCellVertexPositions.at(cellIndex) + position;
+		perCellVertexNormals.at(cellIndex) = perCellVertexNormals.at(cellIndex)+normal;
+		perVertexCellIndices.at(i) = cellIndex;
 	}
 
-	zMin = minZ;
-	zMax = maxZ;
+	for (int i = 0; i<perVertexCellIndices.size(); i++){
+		int cellIndex = perVertexCellIndices.at(i);
+		perCellVertexNumbers.at(cellIndex) = perCellVertexNumbers.at(cellIndex) + 1;
+	}
+
+	for (int i = 0; i<perCellVertexPositions.size(); i++){
+		int n = perCellVertexNumbers.at(i);
+		perCellVertexPositions.at(i) = perCellVertexPositions.at(i)*(1.0f/n);
+		perCellVertexNormals.at(i) = normalize(perCellVertexNormals.at(i));
+	}
+
+	for (int i = 0; i<m_triangleIndices.size(); i++){
+		int vertexIndex0 = m_triangleIndices.at(i).x;
+		int vertexIndex1 = m_triangleIndices.at(i).y;
+		int vertexIndex2 = m_triangleIndices.at(i).z;
+		int cell0 = perVertexCellIndices.at(vertexIndex0);
+		int cell1 = perVertexCellIndices.at(vertexIndex1);
+		int cell2 = perVertexCellIndices.at(vertexIndex2);
+
+		//if((cell0!=cell1)&&(cell0!=cell2)&&(cell1!=cell2)){
+			m_vertexPositions.at(vertexIndex0) = perCellVertexPositions.at(cell0);
+			m_vertexPositions.at(vertexIndex1) = perCellVertexPositions.at(cell1);
+			m_vertexPositions.at(vertexIndex2) = perCellVertexPositions.at(cell2);
+
+			m_vertexNormals.at(vertexIndex0) = perCellVertexNormals.at(cell0);
+			m_vertexNormals.at(vertexIndex1) = perCellVertexNormals.at(cell1);
+			m_vertexNormals.at(vertexIndex2) = perCellVertexNormals.at(cell2);
+		/*} else {
+			m_triangleIndices.erase(m_triangleIndices.begin()+i);
+			i = max(i-1, 0);
+		}*/
+	}
+	//recomputePerVertexNormals(true);
+	push_buffers();
+}
+
+void Mesh::computePlanarParameterization(){
+	computeMinMaxCoordinates();
+	m_vertexTexCoords.resize(m_vertexPositions.size());
+	for(int i = 0; i<m_vertexPositions.size();i++){
+		m_vertexTexCoords.at(i) = glm::vec2((m_vertexPositions.at(i)[0]-xMin)/(xMax-xMin),
+																	      (m_vertexPositions.at(i)[1]-yMin)/(yMax-yMin));
+	}
 }
 
 void Mesh::laplacianFilter(float alpha, bool cotangentWeights){
@@ -121,15 +218,8 @@ void Mesh::laplacianFilter(float alpha, bool cotangentWeights){
 		delta = delta / weight;
 		m_vertexPositions.at(i) = m_vertexPositions.at(i) + delta;
 	}
-
 	recomputePerVertexNormals(true);
-	size_t vertexBufferSize = sizeof (glm::vec3) * m_vertexPositions.size (); // Gather the size of the buffer from the CPU-side vector
-	size_t texCoordBufferSize = sizeof (glm::vec2) * m_vertexTexCoords.size ();
-	glNamedBufferSubData (m_normalVbo, 0, vertexBufferSize, m_vertexNormals.data ());
-	glNamedBufferSubData (m_texCoordVbo, 0, texCoordBufferSize, m_vertexTexCoords.data ());
-	glNamedBufferSubData (m_posVbo, 0, vertexBufferSize, m_vertexPositions.data ());
-	glNamedBufferSubData (m_tanVbo, 0, vertexBufferSize, m_vertexTangents.data ());
-	glNamedBufferSubData (m_biVbo, 0, vertexBufferSize, m_vertexBitangents.data ());
+	push_buffers();
 }
 
 void Mesh::computeBoundingSphere (glm::vec3 & center, float & radius) const {
