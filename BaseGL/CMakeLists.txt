@@ -17,6 +17,8 @@ add_executable (
 	Sources/MeshLoader.cpp
 	Sources/ShaderProgram.h
 	Sources/ShaderProgram.cpp
+	Sources/OctreeNode.cpp
+	Sources/OctreeNode.h
 )
 
 # Copy the shader files in the binary location. 
