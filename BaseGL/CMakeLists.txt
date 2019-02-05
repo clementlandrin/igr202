@@ -19,9 +19,9 @@ add_executable (
 	Sources/ShaderProgram.cpp
 )
 
-# Copy the shader files in the binary location. 
+# Copy the shader files in the binary location.
 
-add_custom_command(TARGET BaseGL 
+add_custom_command(TARGET BaseGL
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:BaseGL> ${CMAKE_CURRENT_SOURCE_DIR})
 
