@@ -38,6 +38,8 @@ public:
 
 	void adaptiveSimplify(unsigned int numOfPerLeafVertices);
 
+	void subdivide();
+	
 	void init ();
 	void render ();
 	void clear ();
