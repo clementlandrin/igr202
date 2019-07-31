@@ -63,11 +63,17 @@ static int numberLightUsed = 1;
 
 // Specifies which render have to be use
 // 0 means PBR rendering
+#define SHADER_MODE_PBR 0
 // 1 means a basic toon rendering
+#define SHADER_BASIC_TOON 1
 // 2 means a depth-of-field-based X-toon rendering
+#define SHADER_DEPTH_X_TOON 2
 // 3 means a perspective-based X-toon rendering
+#define SHADER_PERSEPECTIVE_X_TOON 3
 // 4 means a orientation-based X-toon rendering
-static int shaderMode = 0;
+#define SHADER_ORIENTATION 4
+
+static int shaderMode = SHADER_MODE_PBR;
 
 // Specificies if the normal is computed thanks to the normal map
 // defaultly no
@@ -103,7 +109,8 @@ void init (const std::string & meshFilename);
 
 void clear ();
 
-void printHelp () {
+void printHelp () 
+{
 	std::cout << "> Help:" << std::endl
 			  << "    Mouse commands:" << std::endl
 			  << "    * Left button: rotate camera" << std::endl
@@ -113,27 +120,32 @@ void printHelp () {
    			  << "    * H: print this help" << std::endl
    			  << "    * F1: toggle wireframe rendering" << std::endl
    			  << "    * ESC: quit the program" << std::endl
-					<< "    * F5: load shader" << std::endl
-					<< "    * T: switch between PBR mode and TSM (Toon Shading Mode)" << std::endl
-					<< "    * &: basic toon shading (default mode of TSM)" << std::endl
-					<< "    * é: X-Toon shading depth and view-point based (once in TSM)" << std::endl
-					<< "    * #: X-Toon shading depth and axis based (once in TSM)" << std::endl
-					<< "    * ': X-Toon shading orientation based (once in TSM)" << std::endl
-					<< "    * UP: increment the number of lights to use (max 3)" << std::endl
-					<< "    * DOWN: decrement the number of lights to use (min 1)" << std::endl
-					<< "    * 0: run a laplacian filtering with alpha = 0.1" << std::endl
-					<< "    * 1: run a laplacian filtering with alpha = 0.5" << std::endl
-					<< "    * 2: run a laplacian filtering with alpha = 1.0" << std::endl
-					<< "    * S: run the simplification with a predefined resolution" << std::endl
-					<< "    * A: run the simplification using an octree" << std::endl;
+			  << "    * F5: load shader" << std::endl
+			  << "    * T: switch between PBR mode and TSM (Toon Shading Mode)" << std::endl
+			  << "    * &: basic toon shading (default mode of TSM)" << std::endl
+			  << "    * é: X-Toon shading depth and view-point based (once in TSM)" << std::endl
+			  << "    * #: X-Toon shading depth and axis based (once in TSM)" << std::endl
+			  << "    * ': X-Toon shading orientation based (once in TSM)" << std::endl
+			  << "    * UP: increment the number of lights to use (max 3)" << std::endl
+			  << "    * DOWN: decrement the number of lights to use (min 1)" << std::endl
+			  << "    * 0: run a laplacian filtering with alpha = 0.1" << std::endl
+			  << "    * 1: run a laplacian filtering with alpha = 0.5" << std::endl
+			  << "    * 2: run a laplacian filtering with alpha = 1.0" << std::endl
+			  << "    * S: run the simplification with a predefined resolution" << std::endl
+			  << "    * A: run the simplification using an octree" << std::endl;
 }
 
-void switchShaderMode(int mode){
-	if(mode!=0){
+void switchShaderMode(int mode)
+{
+	if(mode!=SHADER_MODE_PBR)
+	{
 		glClearColor (1.0f, 1.0f, 1.0f, 1.0f);
-	} else {
+	} 
+	else 
+	{
 		glClearColor (0.0f, 0.0f, 0.0f, 1.0f);
 	}
+
 	shaderMode = mode;
 	shaderProgramPtr->use();
 	shaderProgramPtr->set("shaderMode",shaderMode);
@@ -143,166 +155,240 @@ void switchShaderMode(int mode){
 }
 
 // Executed each time the window is resized. Adjust the aspect ratio and the rendering viewport to the current window.
-void windowSizeCallback (GLFWwindow * windowPtr, int width, int height) {
+void windowSizeCallback (GLFWwindow * windowPtr, int width, int height) 
+{
 	cameraPtr->setAspectRatio (static_cast<float>(width) / static_cast<float>(height));
 	glViewport (0, 0, (GLint)width, (GLint)height); // Dimension of the rendering region withminin the window
 }
 
 /// Executed each time a key is entered.
-void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int mods) {
-	if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int mods) 
+{
+	if (action == GLFW_PRESS && key == GLFW_KEY_H) 
+	{
 		printHelp ();
 	}
-	else if (action == GLFW_PRESS && key == GLFW_KEY_F1) {
+	else if (action == GLFW_PRESS && key == GLFW_KEY_F1) 
+	{
 		GLint mode[2];
 		glGetIntegerv (GL_POLYGON_MODE, mode);
 		glPolygonMode (GL_FRONT_AND_BACK, mode[1] == GL_FILL ? GL_LINE : GL_FILL);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) 
+	{
 		glfwSetWindowShouldClose (windowPtr, true); // Closes the application if the escape key is pressed
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_T){
-		if(shaderMode==0){
-			switchShaderMode(1);
-		} else {
-			switchShaderMode(0);
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_T)
+	{
+		if(shaderMode==SHADER_MODE_PBR)
+		{
+			switchShaderMode(SHADER_BASIC_TOON);
+		} else 
+		{
+			switchShaderMode(SHADER_MODE_PBR);
 		}
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_1 && shaderMode != 0){
-		switchShaderMode(1);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_2 && shaderMode != 0){
-		switchShaderMode(2);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_3 && shaderMode != 0){
-		switchShaderMode(3);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_4 && shaderMode != 0){
-		switchShaderMode(4);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_F5){
-		try {
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_1 && shaderMode != SHADER_MODE_PBR)
+	{
+		switchShaderMode(SHADER_BASIC_TOON);
+	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_2 && shaderMode != SHADER_MODE_PBR)
+	{
+		switchShaderMode(SHADER_DEPTH_X_TOON);
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_3 && shaderMode != SHADER_MODE_PBR)
+	{
+		switchShaderMode(SHADER_PERSEPECTIVE_X_TOON);
+	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_4 && shaderMode != SHADER_MODE_PBR)
+	{
+		switchShaderMode(SHADER_ORIENTATION);
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_F5)
+	{
+		try 
+		{
 			shaderProgramPtr = ShaderProgram::genBasicShaderProgram (SHADER_PATH + "VertexShader.glsl",
 														         	 SHADER_PATH + "FragmentShader.glsl");
-		} catch (std::exception & e) {
+		} catch (std::exception & e) 
+		{
 			exitOnCriticalError (std::string ("[Error loading shader program]") + e.what ());
 		}
+
 		initScene(DEFAULT_MESH_FILENAME);
 		switchShaderMode(shaderMode);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_UP){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_UP)
+	{
 		numberLightUsed = min(numberLightUsed+1,3);
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("numberLightUsed",numberLightUsed);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_DOWN){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_DOWN)
+	{
 		numberLightUsed = max(numberLightUsed-1,1);
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("numberLightUsed",numberLightUsed);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_Q){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_Q)
+	{
 		zMin = zMin - meshScale/30;
 		std::cout<<"zMin : "<<zMin<<std::endl;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("zMin",zMin);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_W){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_W)
+	{
 		zMin = min(zMin + meshScale/30,meshPtr->getZMin());
 		std::cout<<"zMin : "<<zMin<<std::endl;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("zMin",zMin);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_E){
+	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_E)
+	{
 		r = max(r - float(0.05),float(1.001));
 		std::cout<<"r value : "<<r<<std::endl;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("r",r);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_R){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_R)
+	{
 		r = r + 0.05;
 		std::cout<<"r value : "<<r<<std::endl;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("r",r);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_D){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_D)
+	{
 		zFocus = min(zFocus - meshScale/10,0.0f);
 		std::cout<<"z of focus point : "<<zFocus<<std::endl;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("zFocus",zFocus);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_F){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_F)
+{
 		zFocus = zFocus + meshScale/10;
 		std::cout<<"z of focus point : "<<zFocus<<std::endl;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("zFocus",zFocus);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_N){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_N)
+	{
 		std::cout << "normal mapping"<< std::endl;
 		normalMapUsed = 1-normalMapUsed;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("normalMapUsed",normalMapUsed);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_X){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_X)
+{
 		std::cout << "texture using" <<std::endl;
 		textureUsing = 1-textureUsing;
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("textureUsing",textureUsing);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_KP_0){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_0)
+{
 		std::cout << "laplacian filter with an alpha of 0.1";
 		meshPtr->laplacianFilter(0.1, true);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_KP_1){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_1)
+{
 		std::cout << "laplacian filter with an alpha of 0.5";
 		meshPtr->laplacianFilter(0.5, true);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_KP_2){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_2)
+	{
 		std::cout << "laplacian filter with an alpha of 1.0";
 		meshPtr->laplacianFilter(1.0, true);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_S){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_S)
+	{
 		int resolution = 32;
 		std::cout << "simplification with a resolution of : " << resolution << std::endl;
 		meshPtr->simplify(resolution);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_A){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_A)
+	{
 		unsigned int numberOfVertexPerLeaf = 10;
 		std::cout << "octree simplification with a maximum number of vertex per cell of : " << numberOfVertexPerLeaf << std::endl;
 		meshPtr->adaptiveSimplify(numberOfVertexPerLeaf);
-	} else if (action == GLFW_PRESS && key == GLFW_KEY_L){
+	} 
+	else if (action == GLFW_PRESS && key == GLFW_KEY_L)
+	{
 		std::cout << "run a subdivision according loop scheme" << std::endl;
 		meshPtr->subdivide();
 	}
 }
 
 /// Called each time the mouse cursor moves
-void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) 
+{
 	int width, height;
 	glfwGetWindowSize (windowPtr, &width, &height);
 	float normalizer = static_cast<float> ((width + height)/2);
 	float dx = static_cast<float> ((baseX - xpos) / normalizer);
 	float dy = static_cast<float> ((ypos - baseY) / normalizer);
-	if (isRotating) {
+	if (isRotating) 
+	{
 		glm::vec3 dRot (-dy * M_PI, dx * M_PI, 0.0);
 		cameraPtr->setRotation (baseRot + dRot);
 	}
-	else if (isPanning) {
+	else if (isPanning) 
+	{
 		cameraPtr->setTranslation (baseTrans + meshScale * glm::vec3 (dx, dy, 0.0));
-	} else if (isZooming) {
+	} 
+	else if (isZooming) 
+	{
 		cameraPtr->setTranslation (baseTrans + meshScale * glm::vec3 (0.0, 0.0, dy));
 	}
 }
 
 /// Called each time a mouse button is pressed
-void mouseButtonCallback (GLFWwindow * window, int button, int action, int mods) {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-    	if (!isRotating) {
+void mouseButtonCallback (GLFWwindow * window, int button, int action, int mods) 
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
+	{
+    	if (!isRotating) 
+		{
     		isRotating = true;
     		glfwGetCursorPos (window, &baseX, &baseY);
     		baseRot = cameraPtr->getRotation ();
         }
-    } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+    } 
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) 
+	{
     	isRotating = false;
-    } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+    } 
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) 
+	{
     	if (!isPanning) {
     		isPanning = true;
     		glfwGetCursorPos (window, &baseX, &baseY);
     		baseTrans = cameraPtr->getTranslation ();
         }
-    } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+    } 
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) 
+	{
     	isPanning = false;
-    } else if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
+    } 
+	else if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) 
+	{
     	if (!isZooming) {
     		isZooming = true;
     		glfwGetCursorPos (window, &baseX, &baseY);
     		baseTrans = cameraPtr->getTranslation ();
         }
-    } else if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_RELEASE) {
+    } 
+	else if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_RELEASE) 
+	{
     	isZooming = false;
     }
 }
 
 void initGLFW () {
 	// Initialize GLFW, the library responsible for window management
-	if (!glfwInit ()) {
+	if (!glfwInit ()) 
+	{
 		std::cerr << "ERROR: Failed to init GLFW" << std::endl;
 		std::exit (EXIT_FAILURE);
 	}
@@ -315,7 +401,8 @@ void initGLFW () {
 
 	// Create the window
 	windowPtr = glfwCreateWindow (1024, 768, "Computer Graphics - Practical Assignment", nullptr, nullptr);
-	if (!windowPtr) {
+	if (!windowPtr) 
+	{
 		std::cerr << "ERROR: Failed to open window" << std::endl;
 		glfwTerminate ();
 		std::exit (EXIT_FAILURE);
@@ -353,10 +440,14 @@ void initOpenGL () {
 	glEnable (GL_DEPTH_TEST); // Enable the z-buffer test in the rasterization
 	glClearColor (0.0f, 0.0f, 0.0f, 1.0f); // specify the background color, used any time the framebuffer is cleared
 	// Loads and compile the programmable shader pipeline
-	try {
+
+	try 
+	{
 		shaderProgramPtr = ShaderProgram::genBasicShaderProgram (SHADER_PATH + "VertexShader.glsl",
 													         	 SHADER_PATH + "FragmentShader.glsl");
-	} catch (std::exception & e) {
+	} 
+	catch (std::exception & e) 
+	{
 		exitOnCriticalError (std::string ("[Error loading shader program]") + e.what ());
 	}
 }
@@ -370,9 +461,13 @@ void initScene (const std::string & meshFilename) {
 
 	// Mesh
 	meshPtr = std::make_shared<Mesh> ();
-	try {
+
+	try 
+	{
 		MeshLoader::loadOFF (meshFilename, meshPtr);
-	} catch (std::exception & e) {
+	} 
+	catch (std::exception & e) 
+	{
 		exitOnCriticalError (std::string ("[Error loading mesh]") + e.what ());
 	}
 	meshPtr->init ();
@@ -428,6 +523,7 @@ void initScene (const std::string & meshFilename) {
 	shaderProgramPtr->set ("backLight.distanceAttenuation", lightSources.at(2)->getDistanceAttenuation());
 
 	shaderProgramPtr->set ("numberLightUsed", numberLightUsed);
+
 	// Material
 	materialPtr = std::make_shared<Material> ();
 	materialPtr->setAlbedo(glm::vec3(0.4,0.6,0.2));
@@ -484,13 +580,15 @@ void initScene (const std::string & meshFilename) {
 	r = 1.6f;
 }
 
-void init (const std::string & meshFilename) {
+void init (const std::string & meshFilename) 
+{
 	initGLFW (); // Windowing system
 	initOpenGL (); // OpenGL Context and shader pipeline
 	initScene (meshFilename); // Actual scene to render
 }
 
-void clear () {
+void clear () 
+{
 	cameraPtr.reset ();
 	meshPtr.reset ();
 	shaderProgramPtr.reset ();
@@ -499,7 +597,8 @@ void clear () {
 }
 
 // The main rendering call
-void render () {
+void render () 
+{
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
 	shaderProgramPtr->use (); // Activate the program to be used for upcoming primitive
 	glm::mat4 projectionMatrix = cameraPtr->computeProjectionMatrix ();
@@ -518,7 +617,8 @@ void render () {
 }
 
 // Update any accessible variable based on the current time
-void update (float currentTime) {
+void update (float currentTime) 
+{
 	// Animate any entity of the program here
 	static const float initialTime = currentTime;
 	float dt = currentTime - initialTime;
@@ -529,17 +629,21 @@ void update (float currentTime) {
 	glm::mat4 viewMatrix = cameraPtr->computeViewMatrix ();
 }
 
-void usage (const char * command) {
+void usage (const char * command) 
+{
 	std::cerr << "Usage : " << command << " [<file.off>]" << std::endl;
 	std::exit (EXIT_FAILURE);
 }
 
-int main (int argc, char ** argv) {
+int main (int argc, char ** argv) 
+{
 	if (argc > 2)
 		usage (argv[0]);
-	init (argc == 1 ? DEFAULT_MESH_FILENAME : argv[1]); // Your initialization code (user interface, OpenGL states, scene with geometry, materialPtr, lights, etc)
+	
+	init (argc == 1 ? DEFAULT_MESH_FILENAME : argv[1]);
 
-	while (!glfwWindowShouldClose (windowPtr)) {
+	while (!glfwWindowShouldClose (windowPtr)) 
+	{
 		update (static_cast<float> (glfwGetTime ()));
 		render ();
 		glfwSwapBuffers (windowPtr);

@@ -5,11 +5,16 @@ OctreeNode::OctreeNode(){
 	isALeaf = false;
 	data = new Data();
 }
-OctreeNode * OctreeNode::buildOctree(int depth, int maxDepth, Data data, unsigned int numOfPerLeafVertices, std::vector<glm::vec3> vertexPositions) {
+OctreeNode * OctreeNode::buildOctree(int depth, int maxDepth, Data data, unsigned int numOfPerLeafVertices, std::vector<glm::vec3> vertexPositions) 
+{
 	OctreeNode * nodePtr = new OctreeNode();
-	if(nodePtr->stopCriteria(data, numOfPerLeafVertices, vertexPositions)||depth>maxDepth){
+
+	if(nodePtr->stopCriteria(data, numOfPerLeafVertices, vertexPositions)||depth>maxDepth)
+	{
 		nodePtr->init(data); // fill children with NULL and affect data
-	} else {
+	} 
+	else 
+	{
 		Data childData[8];
 		nodePtr->data = nullptr;
 		nodePtr->children = new std::vector<OctreeNode*>();
@@ -19,40 +24,55 @@ OctreeNode * OctreeNode::buildOctree(int depth, int maxDepth, Data data, unsigne
 		}
 		nodePtr->setIsALeaf(false);
 	}
+
 	return nodePtr;
 }
 
-bool OctreeNode::stopCriteria(Data data, unsigned int numOfPerLeafVertices, std::vector<glm::vec3> vertexPositions){
+bool OctreeNode::stopCriteria(Data data, unsigned int numOfPerLeafVertices, std::vector<glm::vec3> vertexPositions)
+{
 	int numVertices = 0;
-	for(int i = 0; i < vertexPositions.size(); i++){
-		if(isInCube(data, vertexPositions[i])){
+
+	for(int i = 0; i < vertexPositions.size(); i++)
+	{
+		if(isInCube(data, vertexPositions[i]))
+		{
 			numVertices = numVertices + 1;
 		}
 	}
-	if(numVertices>numOfPerLeafVertices){
+
+	if(numVertices>numOfPerLeafVertices)
+	{
 		return false;
-	} else {
+	} 
+	else 
+	{
 		return true;
 	}
 }
 
-bool OctreeNode::isInCube(Data data, glm::vec3 vertexPosition){
+bool OctreeNode::isInCube(Data data, glm::vec3 vertexPosition)
+{
 	if((vertexPosition.x<data.point.x+data.width && vertexPosition.x>data.point.x)&&
 	   (vertexPosition.y<data.point.y+data.height && vertexPosition.y>data.point.y)&&
-	   (vertexPosition.z<data.point.z+data.depth && vertexPosition.z>data.point.z)){
+	   (vertexPosition.z<data.point.z+data.depth && vertexPosition.z>data.point.z))
+	{
 		return true;
-	} else {
+	} 
+	else 
+	{
 		return false;
 	}
 }
 
-void OctreeNode::init(Data data){
+void OctreeNode::init(Data data)
+{
 	*this->data = data;
 	this->children = nullptr;
 	this->setIsALeaf(true);
 }
 
-void OctreeNode::dataSpatialSplit(Data data, Data childData[8]){
+void OctreeNode::dataSpatialSplit(Data data, Data childData[8])
+{
 	Data tmp = data;
 	tmp.point = data.point;
 	tmp.height = data.height/2;

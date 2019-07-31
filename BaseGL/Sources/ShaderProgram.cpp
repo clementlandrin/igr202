@@ -17,16 +17,20 @@ ShaderProgram::~ShaderProgram () {
 	glDeleteProgram (m_id); 
 }
 
-std::string ShaderProgram::file2String (const std::string & filename) {
+std::string ShaderProgram::file2String (const std::string & filename) 
+{
 	std::ifstream input (filename.c_str ());
+
 	if (!input)
 		throw std::ios_base::failure ("[Shader Program][file2String] Error: cannot open " + filename);
+
 	std::stringstream buffer;
 	buffer << input.rdbuf ();
 	return buffer.str ();
 }
 
-void ShaderProgram::loadShader (GLenum type, const std::string & shaderFilename) {
+void ShaderProgram::loadShader (GLenum type, const std::string & shaderFilename) 
+{
 	GLuint shader = glCreateShader (type); // Create the shader, e.g., a vertex shader to be applied to every single vertex of a mesh
 	std::string shaderSourceString = file2String (shaderFilename); // Loads the shader source from a file to a C++ string
 	const GLchar * shaderSource = (const GLchar *)shaderSourceString.c_str (); // Interface the C++ string through a C pointer
@@ -37,7 +41,8 @@ void ShaderProgram::loadShader (GLenum type, const std::string & shaderFilename)
 }
 
 std::shared_ptr<ShaderProgram> ShaderProgram::genBasicShaderProgram (const std::string & vertexShaderFilename,
-															 	 	 const std::string & fragmentShaderFilename) {
+															 	 	 const std::string & fragmentShaderFilename) 
+{
 	std::shared_ptr<ShaderProgram> shaderProgramPtr = std::make_shared<ShaderProgram> ();
 	shaderProgramPtr->loadShader (GL_VERTEX_SHADER, vertexShaderFilename);
 	shaderProgramPtr->loadShader (GL_FRAGMENT_SHADER, fragmentShaderFilename);

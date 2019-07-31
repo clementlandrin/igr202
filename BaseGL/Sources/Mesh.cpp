@@ -9,10 +9,12 @@
 #include <iostream>
 using namespace std;
 
-Mesh::~Mesh () {
+Mesh::~Mesh () 
+{
 	clear ();
 }
-void Mesh::subdivide(){
+void Mesh::subdivide()
+{
 	int index0;
 	int index1;
 	int index2;
@@ -32,7 +34,8 @@ void Mesh::subdivide(){
 	std::cout<<m_triangleIndices.size()<<std::endl;
 	std::vector<glm::uvec3> triangleIndicesCopy = m_triangleIndices;
 	
-	for(int i = 0; i<m_triangleIndices.size();i++){
+	for(int i = 0; i<m_triangleIndices.size();i++)
+	{
 			index0 = m_triangleIndices.at(i).x;
 			index1 = m_triangleIndices.at(i).y;
 			index2 = m_triangleIndices.at(i).z;
@@ -63,12 +66,14 @@ void Mesh::subdivide(){
 			triangleIndicesCopy.push_back(glm::vec3(newIndex0,newIndex1,newIndex2));
 			triangleIndicesCopy.push_back(glm::vec3(newIndex2,newIndex1,index2));
 	}
+
 	m_triangleIndices = triangleIndicesCopy;
 	init();
 	//push_buffers();
 }
 
-void Mesh::computeMinMaxCoordinates(){
+void Mesh::computeMinMaxCoordinates()
+{
 	float maxX = m_vertexPositions.at(0)[0];
 	float maxY = m_vertexPositions.at(0)[1];
 	float maxZ = m_vertexPositions.at(0)[2];
@@ -76,23 +81,35 @@ void Mesh::computeMinMaxCoordinates(){
 	float minY = m_vertexPositions.at(0)[1];
 	float minZ = m_vertexPositions.at(0)[2];
 
-	for(int i = 0;i<m_vertexPositions.size();i++){
-		if(m_vertexPositions.at(i)[0]>maxX){
+	for(int i = 0;i<m_vertexPositions.size();i++)
+	{
+		if(m_vertexPositions.at(i)[0]>maxX)
+		{
 			maxX = m_vertexPositions.at(i)[0];
 		}
-		if(m_vertexPositions.at(i)[1]>maxY){
+
+		if(m_vertexPositions.at(i)[1]>maxY)
+		{
 			maxY = m_vertexPositions.at(i)[1];
 		}
-		if(m_vertexPositions.at(i)[2]>maxZ){
+
+		if(m_vertexPositions.at(i)[2]>maxZ)
+		{
 			maxZ = m_vertexPositions.at(i)[2];
 		}
-		if(m_vertexPositions.at(i)[0]<minX){
+
+		if(m_vertexPositions.at(i)[0]<minX)
+		{
 			minX = m_vertexPositions.at(i)[0];
 		}
-		if(m_vertexPositions.at(i)[1]<minY){
+
+		if(m_vertexPositions.at(i)[1]<minY)
+		{
 			minY = m_vertexPositions.at(i)[1];
 		}
-		if(m_vertexPositions.at(i)[2]<minZ){
+
+		if(m_vertexPositions.at(i)[2]<minZ)
+		{
 			minZ = m_vertexPositions.at(i)[2];
 		}
 	}
@@ -105,7 +122,8 @@ void Mesh::computeMinMaxCoordinates(){
 		yMax = maxY;
 }
 
-void Mesh::push_buffers(){
+void Mesh::push_buffers()
+{
 	size_t vertexBufferSize = sizeof (glm::vec3) * m_vertexPositions.size (); // Gather the size of the buffer from the CPU-side vector
 	size_t texCoordBufferSize = sizeof (glm::vec2) * m_vertexTexCoords.size ();
 	size_t indexBufferSize = sizeof (glm::uvec3) * m_triangleIndices.size ();
@@ -118,29 +136,39 @@ void Mesh::push_buffers(){
 	glNamedBufferSubData (m_biVbo, 0, vertexBufferSize, m_vertexBitangents.data ());
 }
 
-void travelTree(std::vector<Data>* datas,OctreeNode * node){
-	if(!node->getIsALeaf()){
+void travelTree(std::vector<Data>* datas,OctreeNode * node)
+{
+	if(!node->getIsALeaf())
+	{
 		std::vector<OctreeNode*> * children = new std::vector<OctreeNode*>();
 		children = node->getChildren();
-		for(int i = 0; i<8; i++){
+		for(int i = 0; i<8; i++)
+		{
 			travelTree(datas, (*children).at(i));
 		}
-	} else {
+	} 
+	else 
+	{
 		datas->push_back(*node->getData());
 	}
 }
 
-bool isInCell(Data data, glm::vec3 vertexPos){
+bool isInCell(Data data, glm::vec3 vertexPos)
+{
 		if((vertexPos.x>data.point.x && vertexPos.x<data.point.x+data.width)&&
 			 (vertexPos.y>data.point.y && vertexPos.y<data.point.y+data.height)&&
-			 (vertexPos.z>data.point.z && vertexPos.z<data.point.z+data.depth)){
+			 (vertexPos.z>data.point.z && vertexPos.z<data.point.z+data.depth))
+		{
 				 return true;
-		} else {
+		} 
+		else 
+		{
 			return false;
 		}
 }
 
-void Mesh::adaptiveSimplify(unsigned int numOfPerLeafVertices){
+void Mesh::adaptiveSimplify(unsigned int numOfPerLeafVertices)
+{
 	OctreeNode * octreeNode;
 
 	float maxX = xMax +(xMax-xMin)/100.0;
@@ -162,11 +190,9 @@ void Mesh::adaptiveSimplify(unsigned int numOfPerLeafVertices){
 	data.depth = depth;
 	data.point = positionBottomLeftFront;
 	octreeNode = OctreeNode::buildOctree(0,16,data, numOfPerLeafVertices, m_vertexPositions);
-	//parcours de l'octree, stocker node data
+	// go through octree
 	std::vector<Data>* datas = new std::vector<Data>();
-	std::cout<<"Entering travelTree recursive call"<<std::endl;
 	travelTree(datas, octreeNode);
-	std::cout<<"Ended travelTree recursive call"<<std::endl;;
 	int dataSize = (*datas).size();
 
 	std::vector<glm::vec3> perCellVertexPositions;
@@ -178,24 +204,28 @@ void Mesh::adaptiveSimplify(unsigned int numOfPerLeafVertices){
 	perCellVertexNormals.resize(dataSize, glm::vec3(0.0));
 	perCellVertexNumbers.resize(dataSize, 0);
 
-	for (int i = 0; i<m_vertexPositions.size();i++){
-		for(int j = 0; j<dataSize;j++){
-			if(isInCell((*datas).at(j),m_vertexPositions[i])){
+	for (int i = 0; i<m_vertexPositions.size();i++)
+	{
+		for(int j = 0; j<dataSize;j++)
+		{
+			if(isInCell((*datas).at(j),m_vertexPositions[i]))
+			{
 				perVertexCellIndices.at(i) = j;
 				perCellVertexNumbers.at(j) = perCellVertexNumbers.at(j) + 1;
 				perCellVertexPositions.at(j) = perCellVertexPositions.at(j) + m_vertexPositions.at(i);
 				perCellVertexNormals.at(j) = perCellVertexNormals.at(j) + m_vertexNormals.at(i);
-			} else {
-			}
+			} 
 		}
 	}
-	for(int j = 0; j<dataSize;j++){
+	for(int j = 0; j<dataSize;j++)
+	{
 		int n = perCellVertexNumbers.at(j);
 		perCellVertexPositions.at(j) = perCellVertexPositions.at(j) *(1.0f/n);
 		perCellVertexNormals.at(j) = perCellVertexNormals.at(j)*(1.0f/n);
 	}
 
-	for (int i = 0; i<m_triangleIndices.size(); i++){
+	for (int i = 0; i<m_triangleIndices.size(); i++)
+	{
 		int vertexIndex0 = m_triangleIndices.at(i).x;
 		int vertexIndex1 = m_triangleIndices.at(i).y;
 		int vertexIndex2 = m_triangleIndices.at(i).z;
@@ -203,29 +233,26 @@ void Mesh::adaptiveSimplify(unsigned int numOfPerLeafVertices){
 		int cell1 = perVertexCellIndices.at(vertexIndex1);
 		int cell2 = perVertexCellIndices.at(vertexIndex2);
 
-		//if((cell0!=cell1)&&(cell0!=cell2)&&(cell1!=cell2)){
-			m_vertexPositions.at(vertexIndex0) = perCellVertexPositions.at(cell0);
-			m_vertexPositions.at(vertexIndex1) = perCellVertexPositions.at(cell1);
-			m_vertexPositions.at(vertexIndex2) = perCellVertexPositions.at(cell2);
+		m_vertexPositions.at(vertexIndex0) = perCellVertexPositions.at(cell0);
+		m_vertexPositions.at(vertexIndex1) = perCellVertexPositions.at(cell1);
+		m_vertexPositions.at(vertexIndex2) = perCellVertexPositions.at(cell2);
 
-			m_vertexNormals.at(vertexIndex0) = perCellVertexNormals.at(cell0);
-			m_vertexNormals.at(vertexIndex1) = perCellVertexNormals.at(cell1);
-			m_vertexNormals.at(vertexIndex2) = perCellVertexNormals.at(cell2);
-		/*} else {
-			m_triangleIndices.erase(m_triangleIndices.begin()+i);
-			i = max(i-1, 0);
-		}*/
+		m_vertexNormals.at(vertexIndex0) = perCellVertexNormals.at(cell0);
+		m_vertexNormals.at(vertexIndex1) = perCellVertexNormals.at(cell1);
+		m_vertexNormals.at(vertexIndex2) = perCellVertexNormals.at(cell2);
 	}
-	//recomputePerVertexNormals(true);
+
 	push_buffers();
 }
 
-void Mesh::simplify(unsigned int resolution){
+void Mesh::simplify(unsigned int resolution)
+{
 	std::vector<int> perVertexCellIndices;
 	std::vector<glm::vec3> perCellVertexPositions;
 	std::vector<glm::vec3> perCellVertexNormals;
 	std::vector<int> perCellVertexNumbers;
 	perVertexCellIndices.resize(m_vertexPositions.size());
+
 	perCellVertexPositions.resize(resolution*resolution*resolution, glm::vec3(0.0));
 	perCellVertexNormals.resize(resolution*resolution*resolution, glm::vec3(0.0));
 	perCellVertexNumbers.resize(resolution*resolution*resolution, 0);
@@ -242,7 +269,9 @@ void Mesh::simplify(unsigned int resolution){
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec3 h = glm::vec3((xMax-xMin)/(resolution-1),(yMax-yMin)/(resolution-1),(zMax-zMin)/(resolution-1));
-	for (int i = 0; i<m_vertexPositions.size(); i++){
+
+	for (int i = 0; i<m_vertexPositions.size(); i++)
+	{
 		position = m_vertexPositions.at(i);
 		normal = m_vertexNormals.at(i);
 		int indexX = int((position.x-xMin)/h.x);
@@ -254,18 +283,21 @@ void Mesh::simplify(unsigned int resolution){
 		perVertexCellIndices.at(i) = cellIndex;
 	}
 
-	for (int i = 0; i<perVertexCellIndices.size(); i++){
+	for (int i = 0; i<perVertexCellIndices.size(); i++)
+	{
 		int cellIndex = perVertexCellIndices.at(i);
 		perCellVertexNumbers.at(cellIndex) = perCellVertexNumbers.at(cellIndex) + 1;
 	}
 
-	for (int i = 0; i<perCellVertexPositions.size(); i++){
+	for (int i = 0; i<perCellVertexPositions.size(); i++)
+	{
 		int n = perCellVertexNumbers.at(i);
 		perCellVertexPositions.at(i) = perCellVertexPositions.at(i)*(1.0f/n);
 		perCellVertexNormals.at(i) = normalize(perCellVertexNormals.at(i));
 	}
 
-	for (int i = 0; i<m_triangleIndices.size(); i++){
+	for (int i = 0; i<m_triangleIndices.size(); i++)
+	{
 		int vertexIndex0 = m_triangleIndices.at(i).x;
 		int vertexIndex1 = m_triangleIndices.at(i).y;
 		int vertexIndex2 = m_triangleIndices.at(i).z;
@@ -273,33 +305,32 @@ void Mesh::simplify(unsigned int resolution){
 		int cell1 = perVertexCellIndices.at(vertexIndex1);
 		int cell2 = perVertexCellIndices.at(vertexIndex2);
 
-		//if((cell0!=cell1)&&(cell0!=cell2)&&(cell1!=cell2)){
-			m_vertexPositions.at(vertexIndex0) = perCellVertexPositions.at(cell0);
-			m_vertexPositions.at(vertexIndex1) = perCellVertexPositions.at(cell1);
-			m_vertexPositions.at(vertexIndex2) = perCellVertexPositions.at(cell2);
+		m_vertexPositions.at(vertexIndex0) = perCellVertexPositions.at(cell0);
+		m_vertexPositions.at(vertexIndex1) = perCellVertexPositions.at(cell1);
+		m_vertexPositions.at(vertexIndex2) = perCellVertexPositions.at(cell2);
 
-			m_vertexNormals.at(vertexIndex0) = perCellVertexNormals.at(cell0);
-			m_vertexNormals.at(vertexIndex1) = perCellVertexNormals.at(cell1);
-			m_vertexNormals.at(vertexIndex2) = perCellVertexNormals.at(cell2);
-		/*} else {
-			m_triangleIndices.erase(m_triangleIndices.begin()+i);
-			i = max(i-1, 0);
-		}*/
+		m_vertexNormals.at(vertexIndex0) = perCellVertexNormals.at(cell0);
+		m_vertexNormals.at(vertexIndex1) = perCellVertexNormals.at(cell1);
+		m_vertexNormals.at(vertexIndex2) = perCellVertexNormals.at(cell2);
 	}
-	//recomputePerVertexNormals(true);
+
 	push_buffers();
 }
 
-void Mesh::computePlanarParameterization(){
+void Mesh::computePlanarParameterization()
+{
 	computeMinMaxCoordinates();
 	m_vertexTexCoords.resize(m_vertexPositions.size());
-	for(int i = 0; i<m_vertexPositions.size();i++){
+
+	for(int i = 0; i<m_vertexPositions.size();i++)
+	{
 		m_vertexTexCoords.at(i) = glm::vec2((m_vertexPositions.at(i)[0]-xMin)/(xMax-xMin),
 																	      (m_vertexPositions.at(i)[1]-yMin)/(yMax-yMin));
 	}
 }
 
-void Mesh::laplacianFilter(float alpha, bool cotangentWeights){
+void Mesh::laplacianFilter(float alpha, bool cotangentWeights)
+{
 	glm::vec3 p0 ;
 	glm::vec3 p1 ;
 	glm::vec3 p2 ;
@@ -319,7 +350,8 @@ void Mesh::laplacianFilter(float alpha, bool cotangentWeights){
 	std::vector<std::vector<float>> vertexCotangent;
 	vertexCotangent.resize(m_vertexPositions.size());
 
-	for (int i = 0; i<m_triangleIndices.size(); i++){
+	for (int i = 0; i<m_triangleIndices.size(); i++)
+	{
 		index0 = m_triangleIndices.at(i)[0];
 		index1 = m_triangleIndices.at(i)[1];
 		index2 = m_triangleIndices.at(i)[2];
@@ -350,47 +382,60 @@ void Mesh::laplacianFilter(float alpha, bool cotangentWeights){
 		(vertexDelta.at(index2)).push_back(p1-p2);
 	}
 
-	for (int i = 0; i<m_vertexPositions.size();i++){
+	for (int i = 0; i<m_vertexPositions.size();i++)
+	{
 		float weight = 0.0;
-		for(int j = 0; j<(vertexCotangent.at(i)).size(); j++){
-			if(cotangentWeights){
+		for(int j = 0; j<(vertexCotangent.at(i)).size(); j++)
+		{
+			if(cotangentWeights)
+			{
 				weight = weight + (vertexCotangent.at(i)).at(j);
-			} else {
+			} 
+			else 
+			{
 				weight = weight + 1.0;
 			}
 		}
+
 		glm::vec3 delta = glm::vec3(0.0);
 		float kWeight = 1.0f;
-		for(int k = 0; k<(vertexDelta.at(i)).size(); k++){
-			if(cotangentWeights){
+		for(int k = 0; k<(vertexDelta.at(i)).size(); k++)
+		{
+			if(cotangentWeights)
+			{
 				kWeight = (vertexCotangent.at(i)).at(k);
 			}
+
 			delta = delta + alpha * kWeight*(vertexDelta.at(i)).at(k);
 		}
+
 		delta = delta / weight;
 		m_vertexPositions.at(i) = m_vertexPositions.at(i) + delta;
 	}
+
 	recomputePerVertexNormals(true);
 	push_buffers();
 }
 
-void Mesh::computeBoundingSphere (glm::vec3 & center, float & radius) const {
+void Mesh::computeBoundingSphere (glm::vec3 & center, float & radius) const 
+{
 	center = glm::vec3 (0.0);
 	radius = 0.f;
 	for (const auto & p : m_vertexPositions)
 		center += p;
 	center /= m_vertexPositions.size ();
+
 	for (const auto & p : m_vertexPositions)
 		radius = std::max (radius, distance (center, p));
 }
 
-void Mesh::recomputePerVertexNormals (bool angleBased) {
+void Mesh::recomputePerVertexNormals (bool angleBased) 
+{
 	computePlanarParameterization();
 	m_vertexNormals.clear ();
 	m_vertexTangents.clear ();
 	m_vertexBitangents.clear ();
 
-	// Change the following code to compute a proper per-vertex normal
 	glm::vec3 p0 ;
 	glm::vec3 p1 ;
 	glm::vec3 p2 ;
@@ -430,7 +475,9 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 	m_vertexNormals.resize(m_vertexPositions.size(), glm::vec3(0.0,0.0,0.0));
 	m_vertexTangents.resize(m_vertexPositions.size(), glm::vec3(0.0,0.0,0.0));
 	m_vertexBitangents.resize(m_vertexPositions.size(), glm::vec3(0.0,0.0,0.0));
-	for (int i = 0; i < m_triangleIndices.size() ; i++){
+
+	for (int i = 0; i < m_triangleIndices.size() ; i++)
+	{
 		// normal computation
 		index0 = m_triangleIndices.at(i)[0];
 		p0 = m_vertexPositions.at(index0);
@@ -442,11 +489,14 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 		angle0 = 1.0;
 		angle1 = 1.0;
 		angle2 = 1.0;
-		if(angleBased){
+
+		if(angleBased)
+		{
 			angle0 = std::acos(dot(p1-p0,p2-p0)/(length(p1-p0)*length(p2-p0)));
 			angle1 = std::acos(dot(p0-p1,p2-p1)/(length(p0-p1)*length(p2-p1)));
 			angle2 = std::acos(dot(p0-p2,p1-p2)/(length(p0-p2)*length(p1-p2)));
 		}
+
 		m_vertexNormals.at(index0) = m_vertexNormals.at(index0) + angle0*normal;
 		m_vertexNormals.at(index1) = m_vertexNormals.at(index1) + angle1*normal;
 		m_vertexNormals.at(index2) = m_vertexNormals.at(index2) + angle2*normal;
@@ -480,7 +530,8 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 		m_vertexBitangents.at(index2) = m_vertexBitangents.at(index2) + angle2*bitangent;
 	}
 
-	for(int i = 0; i<m_vertexPositions.size();i++){
+	for(int i = 0; i<m_vertexPositions.size();i++)
+	{
 		m_vertexNormals.at(i) = normalize(m_vertexNormals.at(i));
 		glm::vec3 n = m_vertexNormals.at(i);
 		m_vertexTangents.at(i) = normalize(m_vertexTangents.at(i));
@@ -490,7 +541,8 @@ void Mesh::recomputePerVertexNormals (bool angleBased) {
 	}
 }
 
-void Mesh::init () {
+void Mesh::init () 
+{
 	computePlanarParameterization();
 	recomputePerVertexNormals (true);
 	glCreateBuffers (1, &m_posVbo); // Generate a GPU buffer to store the positions of the vertices
@@ -541,42 +593,58 @@ void Mesh::init () {
 	glBindVertexArray (0); // Desactive the VAO just created. Will be activated at rendering time.
 }
 
-void Mesh::render () {
+void Mesh::render () 
+{
 	glBindVertexArray (m_vao); // Activate the VAO storing geometry data
 	glDrawElements (GL_TRIANGLES, static_cast<GLsizei> (m_triangleIndices.size () * 3), GL_UNSIGNED_INT, 0); // Call for rendering: stream the current GPU geometry through the current GPU program
 }
 
-void Mesh::clear () {
+void Mesh::clear () 
+{
 	m_vertexPositions.clear ();
 	m_vertexNormals.clear ();
 	m_vertexTexCoords.clear ();
 	m_triangleIndices.clear ();
 	m_vertexTangents.clear ();
 	m_vertexBitangents.clear ();
-	if (m_vao) {
+
+	if (m_vao) 
+	{
 		glDeleteVertexArrays (1, &m_vao);
 		m_vao = 0;
 	}
-	if(m_posVbo) {
+
+	if(m_posVbo)
+	{
 		glDeleteBuffers (1, &m_posVbo);
 		m_posVbo = 0;
 	}
-	if (m_normalVbo) {
+
+	if (m_normalVbo)
+	{
 		glDeleteBuffers (1, &m_normalVbo);
 		m_normalVbo = 0;
 	}
-	if (m_texCoordVbo) {
+
+	if (m_texCoordVbo) 
+	{
 		glDeleteBuffers (1, &m_texCoordVbo);
 		m_texCoordVbo = 0;
 	}
-	if (m_ibo) {
+
+	if (m_ibo) 
+	{
 		glDeleteBuffers (1, &m_ibo);
 		m_ibo = 0;
 	}
-	if (m_tanVbo) {
+
+	if (m_tanVbo) 
+	{
 		glDeleteBuffers (1, &m_tanVbo);
 	}
-	if (m_biVbo) {
+
+	if (m_biVbo)
+	{
 		glDeleteBuffers (1, &m_biVbo);
 	}
 }

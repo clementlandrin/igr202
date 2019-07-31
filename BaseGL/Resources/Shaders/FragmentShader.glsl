@@ -1,5 +1,16 @@
 #version 450 core // Minimal GL version support expected from the GPU
 
+// 0 means PBR rendering
+#define GLSL_SHADER_MODE_PBR 0
+// 1 means a basic toon rendering
+#define GLSL_SHADER_BASIC_TOON 1
+// 2 means a depth-of-field-based X-toon rendering
+#define GLSL_SHADER_DEPTH_X_TOON 2
+// 3 means a perspective-based X-toon rendering
+#define GLSL_SHADER_PERSEPECTIVE_X_TOON 3
+// 4 means a orientation-based X-toon rendering
+#define GLSL_SHADER_ORIENTATION 4
+
 struct LightSource {
 	vec3 color;
 	float intensity;
@@ -55,10 +66,13 @@ float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	float metallic;
 	float roughness;
 
-	if(textureUsing ==1){
+	if(textureUsing ==1)
+	{
 		metallic = texture(material.metallicTex,fTexCoord).r;
 		roughness = texture(material.roughnessTex,fTexCoord).r;
-	} else {
+	} 
+	else 
+	{
 		metallic = material.metallic;
 		roughness = material.roughness;
 	}
@@ -74,36 +88,49 @@ float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	vec3 Li = lightSource.color * lightSource.intensity * (fs+fd) * max(dot(n, wi),0);
 	float d = distance(fLightPosition, fPosition);
 	float att = 1/(lightSource.distanceAttenuation[0]+lightSource.distanceAttenuation[1]*d+lightSource.distanceAttenuation[2]*pow(d,2));
-	if(textureUsing==1){
+
+	if(textureUsing==1)
+	{
 		return Li*att*ambient;
-	} else {
+	} 
+	else 
+	{
 		return Li*att;
 	}
 }
 
-bool criteriaSpecular(vec3 wi, vec3 wo,vec3 n, float limit){
-	if(dot(2*n*dot(wi,n)-wi,wo)>limit){
+bool criteriaSpecular(vec3 wi, vec3 wo,vec3 n, float limit)
+{
+	if(dot(2*n*dot(wi,n)-wi,wo)>limit)
+	{
 		return true;
 	} else {
 		return false;
 	}
 }
 
-vec3 computeNPR(vec3 n,vec3 fr){
+vec3 computeNPR(vec3 n,vec3 fr)
+{
 	vec3 wiKey = normalize(fKeyLightPosition - fPosition);
 	vec3 wiFill = normalize(fFillLightPosition - fPosition);
 	vec3 wiBack = normalize(fBackLightPosition - fPosition);
 	vec3 wo = normalize(-fPosition);
 	bool criteria;
 	float limit = 0.8;
-	if(numberLightUsed==1){
+
+	if(numberLightUsed==1)
+	{
 		criteria = criteriaSpecular(wiKey,wo,n,limit);
-	} else if (numberLightUsed==2){
+	} else if (numberLightUsed==2)
+	{
 		criteria = criteriaSpecular(wiFill,wo,n,limit)||criteriaSpecular(wiKey,wo,n,limit);
-	} else {
+	} 
+	else 
+	{
 		criteria = criteriaSpecular(wiKey,wo,n,limit)||criteriaSpecular(wiFill,wo,n,limit)||criteriaSpecular(wiBack,wo,n,limit);
 	}
-	if(abs(n[2])<0.4){
+	if(abs(n[2])<0.4)
+	{
 		return vec3(0,0,0);
 	} else if(criteria){
 		return vec3(1,1,1);
@@ -112,38 +139,51 @@ vec3 computeNPR(vec3 n,vec3 fr){
 	}
 }
 
-float computeOrientationCriteria(vec3 n, vec3 wi, vec3 wo){
+float computeOrientationCriteria(vec3 n, vec3 wi, vec3 wo)
+{
 	return max(dot(normalize(2*n*dot(wi,n)-wi),wo)/3,0.01);
 }
 
-vec3 computeOrientationTone(vec3 n, vec3 wi, vec3 wo){
+vec3 computeOrientationTone(vec3 n, vec3 wi, vec3 wo)
+{
 	float D = computeOrientationCriteria(n, wi, wo);
 	return texture(material.toneTex,vec2(max(dot(n,wi),0)/3,D)).rgb;
 }
 
-void main() {
+void main() 
+{
 	vec3 fr ;
-	if (shaderMode== 0){
-		if(textureUsing == 1){
+	if (shaderMode == GLSL_SHADER_MODE_PBR)
+	{
+		if(textureUsing == 1)
+		{
 			fr = texture(material.albedoTex,fTexCoord).rgb;
-		} else {
+		} 
+		else 
+		{
 			fr = material.albedo;
 		}
-		 //*TODO*//
-	} else if (shaderMode == 1) {
+	} 
+	else if (shaderMode == 1) 
+	{
 		fr = vec3(0.1,0.6,0.3);
 	}
+
 	vec3 normalMap = normalize(texture(material.normalTex, fTexCoord).rgb);
 	vec3 tangent = normalize(fTangent);
 	vec3 bitangent = normalize(fBitangent);
 	vec3 n = normalize(fNormal);
-	if(normalMapUsed==1){
+
+	if(normalMapUsed==1)
+	{
 		n = normalize(mat3(tangent,bitangent,n)*normalMap);
 	}
-	if(shaderMode == 0){
+
+	if(shaderMode == GLSL_SHADER_MODE_PBR)
+	{
 		float LiKey = computeLiFromLight(keyLight, fKeyLightPosition, n);
 		vec3 radiance =  fr;
-		if(numberLightUsed==1){
+		if(numberLightUsed == 1){
 			radiance = radiance * LiKey;
 		} else if (numberLightUsed == 2){
 			float LiFill = computeLiFromLight(fillLight, fFillLightPosition,n);
@@ -154,31 +194,43 @@ void main() {
 			radiance = radiance * (LiKey+LiFill+LiBack) ;
 		}
 	    colorResponse = vec4 (radiance, 1.0); // Building an RGBA value from an RGB one.
-	} else if (shaderMode == 1){
+	} else if (shaderMode == GLSL_SHADER_BASIC_TOON)
+	{
 			colorResponse = vec4(computeNPR(n,fr),1.0);
-	} else if (shaderMode == 2){
+	} 
+	else if (shaderMode == GLSL_SHADER_DEPTH_X_TOON)
+	{
 		vec3 wiKey = normalize(fKeyLightPosition - fPosition);
 		vec3 wiFill = normalize(fFillLightPosition - fPosition);
 		vec3 wiBack = normalize(fBackLightPosition - fPosition);
-			colorResponse = vec4(texture(material.toneTex,vec2(max(dot(n,wiKey)/3, 0.0),clamp(fDFocal,0.1,0.9))).rgb,1.0);
-	} else if (shaderMode == 3){
+		colorResponse = vec4(texture(material.toneTex,vec2(max(dot(n,wiKey)/3, 0.0),clamp(fDFocal,0.1,0.9))).rgb,1.0);
+	} 
+	else if (shaderMode == GLSL_SHADER_PERSEPECTIVE_X_TOON)
+	{
 		vec3 wiKey = normalize(fKeyLightPosition - fPosition);
 		vec3 wiFill = normalize(fFillLightPosition - fPosition);
 		vec3 wiBack = normalize(fBackLightPosition - fPosition);
-			colorResponse = vec4(texture(material.toneTex,vec2(max(dot(n,wiKey)/3,0.0),clamp(fDEye,0.1,0.9))).rgb,1.0);
-	} else if (shaderMode == 4){
+		colorResponse = vec4(texture(material.toneTex,vec2(max(dot(n,wiKey)/3,0.0),clamp(fDEye,0.1,0.9))).rgb,1.0);
+	} 
+	else if (shaderMode == GLSL_SHADER_ORIENTATION)
+	{
 		vec3 wiKey = normalize(fKeyLightPosition - fPosition);
 		vec3 wiFill = normalize(fFillLightPosition - fPosition);
 		vec3 wiBack = normalize(fBackLightPosition - fPosition);
 		vec3 wo = normalize(-fPosition);
-		if(numberLightUsed == 1){
+		if(numberLightUsed == 1)
+		{
 			vec3 tone = computeOrientationTone(n,wiKey,wo);
 			colorResponse = vec4(tone,1.0);
-		} else if (numberLightUsed == 2){
+		} 
+		else if (numberLightUsed == 2)
+		{
 			float intensityTot = keyLight.intensity+fillLight.intensity;
 			vec3 tone = (keyLight.intensity*computeOrientationTone(n,wiKey,wo) + fillLight.intensity*computeOrientationTone(n,wiFill,wo))/intensityTot;
 			colorResponse = vec4(tone,1.0);
-		} else if (numberLightUsed == 3){
+		} 
+		else if (numberLightUsed == 3)
+		{
 			float intensityTot = keyLight.intensity+fillLight.intensity+backLight.intensity;
 			vec3 tone = (keyLight.intensity*computeOrientationTone(n,wiKey,wo) + fillLight.intensity*computeOrientationTone(n,wiFill,wo)+ backLight.intensity*computeOrientationTone(n,wiBack,wo))/intensityTot;
 			colorResponse = vec4(tone,1.0);
