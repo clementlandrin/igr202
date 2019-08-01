@@ -16,3 +16,5 @@ eglplatform.h
 vk_platform.h
 rust/
 glad-rs/
+BaseGL/build/
+BaseGL/BaseGL.exe
