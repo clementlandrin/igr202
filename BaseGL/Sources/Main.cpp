@@ -33,13 +33,13 @@
 #include "Material.h"
 #include "MeshLoader.h"
 
-static const std::string SHADER_PATH ("Resources/Shaders/");
+static const std::string SHADER_PATH ("../Resources/Shaders/");
 
-static const std::string MATERIAL_PATH ("Resources/Materials/");
+static const std::string MATERIAL_PATH ("../Resources/Materials/");
 
 static const std::string MATERIAL_NAME ("Brick/");
 
-static const std::string DEFAULT_MESH_FILENAME ("Resources/Models/face.off");
+static const std::string DEFAULT_MESH_FILENAME ("../Resources/Models/face.off");
 
 using namespace std;
 

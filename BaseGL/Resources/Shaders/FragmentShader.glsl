@@ -91,11 +91,11 @@ float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 
 	if(textureUsing==1)
 	{
-		return Li*att*ambient;
+		return Li[0]*att*ambient;
 	} 
 	else 
 	{
-		return Li*att;
+		return Li[0]*att;
 	}
 }
 
