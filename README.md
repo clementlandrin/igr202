@@ -1,7 +1,5 @@
 WARNING : OpenGl 4.5 is needed to run the project.
 
-Author: Tamy Boubekeur (tamy.boubekeur@telecom-paristech.fr)
-
 ### Building
 
 This is a standard CMake project. Building it consits in running:
