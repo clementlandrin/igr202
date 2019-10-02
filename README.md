@@ -50,25 +50,25 @@ To move the 3D model, use the mouse:
 
 PBR was implemented using GGX microfacet model. It uses material albedo parameters that can be imported from a texture and a number of lights that can be changed.
 
-PBR with GGX microfacet model:
-
 ![Alt text](Images/PBR.png?raw=true "PBR with GGX microfacet model")
+
+*PBR with GGX microfacet model*
 
 ### Changing the number of lights
 
 To use more or less lights, use keyboard's up and down arrows. The lights are designed according to the 3-points lighting method.
 
-3 point-lighting with key light, fill light and back light:
-
 ![Alt text](Images/3_point_lighting.png?raw=true "3 point-lighting with key light, fill light and back light")
+
+*3 point-lighting with key light, fill light and back light*
 
 ### Enabling texturing
 
 To enable or disable teXturing, press the X key. By default, it textures the model with brick appearance.
 
-Texturing with brick:
-
 ![Alt text](Images/texturing.png?raw=true "Texturing with brick")
+
+*Texturing with brick*
 
 To add new textures, create a new subfolder in Resources/Material and add the texture files. The texture can be changed using the MATERIAL_NAME variable in Main.cpp. To do so, replace
 
@@ -88,19 +88,19 @@ where Name is the name of any subfolder in Resources/Material.
 
 To enable or disable Normal-mapping, press the N key. The texture used for normal-mapping is the one used in the Resources/Material/MATERIAL_NAME folder. 
 
-Normal mapping:
-
 ![Alt text](Images/normal_mapping.png?raw=true "Normal mapping")
 
-Normal mapping with textured 3D model:
+*Normal mapping*
 
 ![Alt text](Images/normal_mapping-textured.png?raw=true "Normal mapping with textured 3D model")
 
+*Normal mapping with textured 3D model*
+
 As the UV coordinates of the textures does not fit the 3D model, normal discontinuities can be perceived along the plane Z = 0.
 
-Normal mapping discontinuity:
-
 ![Alt text](Images/normal_mapping-discontinuity.png?raw=true "Normal mapping discontinuity")
+
+*Normal mapping discontinuity*
 
 ## Toon-shading
 
@@ -114,9 +114,9 @@ To enable and disable Toon-shading, press the T key.
 
 The default Toon-shading is a commonly used 1D texturing. 
 
-Toon-shading:
-
 ![Alt text](Images/toon_shading.png?raw=true "Toon-shading")
+
+*Toon-shading*
 
 The colors:
 
@@ -134,9 +134,9 @@ X-Toon shading is a method described in the paper X-Toon: An Extended Toon Shade
 -distance to the camera along focal axis (press the 3 numeric key)
 -orientation of the surface with respect to the camera (press the 4 numeric key)
 
-X-Toon shading with a distance to the camera along camera axis criteria:
-
 ![Alt text](Images/x_toon_shading-depth.png?raw=true "X-Toon shading with a distance to the camera along camera axis criteria")
+
+*X-Toon shading with a distance to the camera along camera axis criteria*
 
 The resulting effect is that color changes are more sudden in the farthest regions than in the nearest ones. This way, less attention is paid to the silhouette. This effect only depends on the texture and the criteria.
 
@@ -157,9 +157,9 @@ A Laplacian filtering can be performed. The idea is to move vertices along their
 -1 moves vertices from the half of the Laplacian vector
 -2 moves vertices from the entire Laplacian vector
 
-Laplacian filtering:
-
 ![Alt text](Images/filtering.png?raw=true "Laplacian filtering")
+
+*Laplacian filtering*
 
 ### Simplificating
 
@@ -168,6 +168,7 @@ The 3D model can be simplified using clustering.
 To Simplificate the model with a predefined resolution, press the S key.
 To simplificate the model using an Adaptaive resolution implemented with an octree, press the A key.
 
-Predefined simplification:
-
 ![Alt text](Images/simplification.png?raw=true "Predefined simplification")
+
+
+*Predefined simplification*
