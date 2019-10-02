@@ -48,6 +48,8 @@ To move the 3D model, use the mouse:
 
 ## Physically-Based Rendering
 
+![Alt text](images/PBR.png?raw=true "PBR with GGX microfacet model")
+
 PBR was implemented using GGX microfacet model. It uses material albedo parameters that can be imported from a texture and a number of lights that can be changed.
 
 ### Changing the number of lights
