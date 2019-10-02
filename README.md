@@ -106,7 +106,7 @@ The resulting effect is that color changes are more sudden in the farthest regio
 
 In several applications, 3D models are not rendered in totality but modified before. For example, there is no need to render all the details of a far tree if only three pixels are affected by this model.
 
-### Reload the 3D model
+### Reloading the 3D model
 
 Playing with the sections below will distord the model with no doubt.
 To load the proper initial 3D model, press the F5 key.
@@ -119,7 +119,7 @@ A Laplacian filtering can be performed. The idea is to move vertices along their
 -1 moves vertices from the half of the Laplacian vector
 -2 moves vertices from the entire Laplacian vector
 
-### Simplification
+### Simplificating
 
 The 3D model can be simplified using clustering.
 
