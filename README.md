@@ -42,9 +42,9 @@ to recompile. The resulting binary to use is always the one at located in the Ba
 
 To move the 3D model, use the mouse:
 
--left click + move the mouse to rotate
--middle click + move the mouse to zoom-in or zoom-out
--right click + move the mouse to move the model over X and Y direction
+* left click + move the mouse to rotate
+* middle click + move the mouse to zoom-in or zoom-out
+* right click + move the mouse to move the model over X and Y direction
 
 ## Physically-Based Rendering
 
@@ -120,9 +120,9 @@ The default Toon-shading is a commonly used 1D texturing.
 
 The colors:
 
--black for the edges
--white for highly specular areas (i.e. light is mainly reflected in the direction of the camera)
--green for the rest
+* black for the edges
+* white for highly specular areas (i.e. light is mainly reflected in the direction of the camera)
+* green for the rest
 
 Default shading mode can be recovered using the 1 numeric key.
 
@@ -130,9 +130,9 @@ Default shading mode can be recovered using the 1 numeric key.
 
 X-Toon shading is a method described in the paper X-Toon: An Extended Toon Shader written by Pascal Barla. Instead of providing a 1D texture to perform and expressive rendering, a 2D texture can be used. This way, the toon-shading is extended by a criteria. List of commonly used criteria:
 
--distance to the camera along camera axis (press the 2 numeric key)
--distance to the camera along focal axis (press the 3 numeric key)
--orientation of the surface with respect to the camera (press the 4 numeric key)
+* distance to the camera along camera axis (press the 2 numeric key)
+* distance to the camera along focal axis (press the 3 numeric key)
+* orientation of the surface with respect to the camera (press the 4 numeric key)
 
 ![Alt text](Images/x_toon_shading-depth.png?raw=true "X-Toon shading with a distance to the camera along camera axis criteria")
 
@@ -153,9 +153,9 @@ To load the proper initial 3D model, press the F5 key.
 
 A Laplacian filtering can be performed. The idea is to move vertices along their Laplacian to filter details. To perform a Laplacian filtering, press the I, O and P keys. Each key has an associated coefficient. The higher is the coefficient, the fewer is the number of iterations needed to filter the model. But the lower is the coefficient, the more precise is the filtering.
 
--I moves vertices from 0.1 of the Laplacian vector
--O moves vertices from the half of the Laplacian vector
--P moves vertices from the entire Laplacian vector
+* I moves vertices from 0.1 of the Laplacian vector
+* O moves vertices from the half of the Laplacian vector
+* P moves vertices from the entire Laplacian vector
 
 ![Alt text](Images/filtering.png?raw=true "Laplacian filtering")
 
