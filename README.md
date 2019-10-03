@@ -151,11 +151,11 @@ To load the proper initial 3D model, press the F5 key.
 
 ### Filtering
 
-A Laplacian filtering can be performed. The idea is to move vertices along their Laplacian to filter details. To perform a Laplacian filtering, press the 0 1 or 2 keys from the numeric keyboard. The lower is the pressed key symbol, the better is the filtering. But the higher is the pressed key symbol, the faster the filtering converges.
+A Laplacian filtering can be performed. The idea is to move vertices along their Laplacian to filter details. To perform a Laplacian filtering, press the I, O and P keys. Each key has an associated coefficient. The higher is the coefficient, the fewer is the number of iterations needed to filter the model. But the lower is the coefficient, the more precise is the filtering.
 
--0 moves vertices from 0.1 of the Laplacian vector
--1 moves vertices from the half of the Laplacian vector
--2 moves vertices from the entire Laplacian vector
+-I moves vertices from 0.1 of the Laplacian vector
+-O moves vertices from the half of the Laplacian vector
+-P moves vertices from the entire Laplacian vector
 
 ![Alt text](Images/filtering.png?raw=true "Laplacian filtering")
 
