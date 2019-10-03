@@ -122,15 +122,15 @@ void printHelp ()
    			  << "    * ESC: quit the program" << std::endl
 			  << "    * F5: load shader" << std::endl
 			  << "    * T: switch between PBR mode and TSM (Toon Shading Mode)" << std::endl
-			  << "    * &: basic toon shading (default mode of TSM)" << std::endl
-			  << "    * é: X-Toon shading depth and view-point based (once in TSM)" << std::endl
-			  << "    * #: X-Toon shading depth and axis based (once in TSM)" << std::endl
-			  << "    * ': X-Toon shading orientation based (once in TSM)" << std::endl
+			  << "    * 1: basic toon shading (default mode of TSM)" << std::endl
+			  << "    * 2: X-Toon shading depth and view-point based (once in TSM)" << std::endl
+			  << "    * 3: X-Toon shading depth and axis based (once in TSM)" << std::endl
+			  << "    * 4: X-Toon shading orientation based (once in TSM)" << std::endl
 			  << "    * UP: increment the number of lights to use (max 3)" << std::endl
 			  << "    * DOWN: decrement the number of lights to use (min 1)" << std::endl
-			  << "    * 0: run a laplacian filtering with alpha = 0.1" << std::endl
-			  << "    * 1: run a laplacian filtering with alpha = 0.5" << std::endl
-			  << "    * 2: run a laplacian filtering with alpha = 1.0" << std::endl
+			  << "    * I: run a laplacian filtering with alpha = 0.1" << std::endl
+			  << "    * O: run a laplacian filtering with alpha = 0.5" << std::endl
+			  << "    * P: run a laplacian filtering with alpha = 1.0" << std::endl
 			  << "    * S: run the simplification with a predefined resolution" << std::endl
 			  << "    * A: run the simplification using an octree" << std::endl;
 }
@@ -286,17 +286,17 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("textureUsing",textureUsing);
 	}
-	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_0)
+	else if (action == GLFW_PRESS && key == GLFW_KEY_I)
 {
 		std::cout << "laplacian filter with an alpha of 0.1";
 		meshPtr->laplacianFilter(0.1, true);
 	}
-	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_1)
+	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_O)
 {
 		std::cout << "laplacian filter with an alpha of 0.5";
 		meshPtr->laplacianFilter(0.5, true);
 	}
-	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_2)
+	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_P)
 	{
 		std::cout << "laplacian filter with an alpha of 1.0";
 		meshPtr->laplacianFilter(1.0, true);
