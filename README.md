@@ -128,7 +128,7 @@ Default shading mode can be recovered using the 1 numeric key.
 
 ### X-Toon shading
 
-X-Toon shading is a method described in the paper X-Toon: An Extended Toon Shader written by Pascal Barla. Instead of providing a 1D texture to perform and expressive rendering, a 2D texture can be used. This way, the toon-shading is extended by a criteria. List of commonly used criteria:
+X-Toon shading is a method described in the paper X-Toon: An Extended Toon Shader written by Pascal Barla. Instead of providing a 1D texture to perform an expressive rendering, a 2D texture can be used. This way, the toon-shading is extended by a criteria. List of commonly used criteria:
 
 * distance to the camera along camera axis (press the 2 numeric key)
 * distance to the camera along focal axis (press the 3 numeric key)
