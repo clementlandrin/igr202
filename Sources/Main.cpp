@@ -291,12 +291,12 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 		std::cout << "laplacian filter with an alpha of 0.1";
 		meshPtr->laplacianFilter(0.1, true);
 	}
-	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_O)
+	else if (action == GLFW_PRESS && key == GLFW_KEY_O)
 {
 		std::cout << "laplacian filter with an alpha of 0.5";
 		meshPtr->laplacianFilter(0.5, true);
 	}
-	else if (action == GLFW_PRESS && key == GLFW_KEY_KP_P)
+	else if (action == GLFW_PRESS && key == GLFW_KEY_P)
 	{
 		std::cout << "laplacian filter with an alpha of 1.0";
 		meshPtr->laplacianFilter(1.0, true);
