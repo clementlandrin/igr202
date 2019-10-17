@@ -16,13 +16,14 @@ public:
 
 	/// Generate a minimal shader program, made of one vertex shader and one fragment shader
 	static std::shared_ptr<ShaderProgram> genBasicShaderProgram (const std::string & vertexShaderFilename,
+																 const std::string& geometryShaderFilename,
 															 	 const std::string & fragmentShaderFilename);
 
 	/// OpenGL identifier of the program
 	inline GLuint id () { return m_id; }
 
 	/// Loads and compile a shader from a text file, before attaching it to a program
-	void loadShader (GLenum type, const std::string & shaderFilename);
+	GLuint loadShader (GLenum type, const std::string & shaderFilename);
 
 	/// The main GPU program is ready to be handle streams of polygons
 	inline void link () { glLinkProgram (m_id); }
