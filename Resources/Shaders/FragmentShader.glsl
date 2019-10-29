@@ -11,6 +11,8 @@
 // 4 means a orientation-based X-toon rendering
 #define GLSL_SHADER_ORIENTATION 4
 
+#define M_PI 3.1415926535897932384626433832795
+
 struct LightSource {
 	vec3 color;
 	float intensity;
@@ -44,6 +46,7 @@ uniform float zMax;
 uniform float zMin;
 uniform int normalMapUsed;
 uniform int textureUsing;
+uniform bool multipleScattering;
 
 in vec3 fPosition; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 in vec3 fNormal;
@@ -56,12 +59,40 @@ in float fDEye;
 in vec3 fTangent, fBitangent;
 out vec4 colorResponse; // Shader output: the color response attached to this fragment
 
+float p(vec3 wi, vec3 wo , int i, float thetas)
+{
+	float res = 0.0f;
+
+
+}
+
+float computeMultipleScatteringLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n)
+{
+	vec3 wi = normalize(fLightPosition - fPosition);
+	vec3 wo = normalize(-fPosition);
+	vec3 wh = normalize(wi+wo);
+
+	float thetai = acos(dot(n, wi));
+	float thetas = (1-roughness)*M_PI;
+
+	int k = floor((M_PI+2*thetai)/(M_PÏ-2*thetas))+1;
+
+	float Li = 0.0f;
+
+	for (int i = 1; i < k + 1; i++)
+	{
+		Li += p(wi, wo, i, thetas);	
+	}
+
+	return Li;
+}
+
 float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	vec3 wi = normalize(fLightPosition - fPosition);
 	vec3 wo = normalize(-fPosition);
 	vec3 wh = normalize(wi+wo);
 
-	float fd = material.kd/3.14159;
+	float fd = material.kd/M_PI;
 
 	float metallic;
 	float roughness;
@@ -79,7 +110,7 @@ float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 
 	float ambient = texture(material.ambientTex,fTexCoord).r;
 	float F = metallic + (1-metallic)*pow(1-max(0,dot(wi,wh)),5);
-	float D = pow(roughness,2)/(3.14159*pow((1+(pow(roughness,2)-1)*pow(dot(n,wh),2)),2));
+	float D = pow(roughness,2)/(M_PI*pow((1+(pow(roughness,2)-1)*pow(dot(n,wh),2)),2));
 	float Gi = 2*dot(n,wi)/(dot(n,wi)+sqrt(pow(roughness,2)+(1-pow(roughness,2))*pow(dot(n,wi),2)));
 	float Go =  2*dot(n,wo)/(dot(n,wo)+sqrt(pow(roughness,2)+(1-pow(roughness,2))*pow(dot(n,wo),2)));
 	float G = Gi * Go;

@@ -33,13 +33,13 @@
 #include "Material.h"
 #include "MeshLoader.h"
 
-static const std::string SHADER_PATH ("Resources/Shaders/");
+static const std::string SHADER_PATH ("../Resources/Shaders/");
 
-static const std::string MATERIAL_PATH ("Resources/Materials/");
+static const std::string MATERIAL_PATH ("../Resources/Materials/");
 
 static const std::string MATERIAL_NAME ("Brick/");
 
-static const std::string DEFAULT_MESH_FILENAME ("Resources/Models/face.off");
+static const std::string DEFAULT_MESH_FILENAME ("../Resources/Models/face.off");
 
 using namespace std;
 
@@ -88,6 +88,8 @@ static float zMin = -350.0;
 static float r = 1.0;
 
 static int textureUsing = 0;
+
+static bool multipleScattering = false;
 
 static float zFocus = 0.0;
 // Camera control variables
@@ -317,6 +319,13 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 	{
 		std::cout << "run a subdivision according loop scheme" << std::endl;
 		meshPtr->subdivide();
+	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_M)
+	{
+		std::cout << "multiple scattering toggled" << std::endl;
+		multipleScattering = !multipleScattering;
+		shaderProgramPtr->use();
+		shaderProgramPtr->set("multipleScattering", multipleScattering);
 	}
 }
 
