@@ -1,5 +1,7 @@
 #version 450 core // Minimal GL version support expected from the GPU
 
+layout(location = 0) out vec4 colorResponse;
+
 // 0 means PBR rendering
 #define GLSL_SHADER_MODE_PBR 0
 // 1 means a basic toon rendering
@@ -10,6 +12,8 @@
 #define GLSL_SHADER_PERSEPECTIVE_X_TOON 3
 // 4 means a orientation-based X-toon rendering
 #define GLSL_SHADER_ORIENTATION 4
+// 5 means a orientation-based X-toon rendering
+#define GLSL_SHADER_DEPTH_MAPPING 5
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -46,7 +50,7 @@ uniform float zMax;
 uniform float zMin;
 uniform int normalMapUsed;
 uniform int textureUsing;
-uniform bool multipleScattering;
+uniform vec3 meshCenter;
 
 in vec3 fPosition; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 in vec3 fNormal;
@@ -57,35 +61,7 @@ in vec3 fBackLightPosition;
 in float fDFocal;
 in float fDEye;
 in vec3 fTangent, fBitangent;
-out vec4 colorResponse; // Shader output: the color response attached to this fragment
-
-float p(vec3 wi, vec3 wo , int i, float thetas)
-{
-	float res = 0.0f;
-
-
-}
-
-float computeMultipleScatteringLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n)
-{
-	vec3 wi = normalize(fLightPosition - fPosition);
-	vec3 wo = normalize(-fPosition);
-	vec3 wh = normalize(wi+wo);
-
-	float thetai = acos(dot(n, wi));
-	float thetas = (1-roughness)*M_PI;
-
-	int k = floor((M_PI+2*thetai)/(M_PÏ-2*thetas))+1;
-
-	float Li = 0.0f;
-
-	for (int i = 1; i < k + 1; i++)
-	{
-		Li += p(wi, wo, i, thetas);	
-	}
-
-	return Li;
-}
+//out vec4 colorResponse; // Shader output: the color response attached to this fragment
 
 float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	vec3 wi = normalize(fLightPosition - fPosition);
@@ -267,5 +243,11 @@ void main()
 			colorResponse = vec4(tone,1.0);
 		}
 	}
-
+	else if (shaderMode == GLSL_SHADER_DEPTH_MAPPING)
+	{
+		float near = 1.0;
+		float far = 0.002;
+		float distanceNormalized = abs((gl_FragCoord.z - near)/far);
+		colorResponse = vec4(vec3(distanceNormalized), 1.0);
+	}
 }

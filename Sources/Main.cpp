@@ -72,9 +72,12 @@ static int numberLightUsed = 1;
 #define SHADER_PERSEPECTIVE_X_TOON 3
 // 4 means a orientation-based X-toon rendering
 #define SHADER_ORIENTATION 4
+// 5 means a orientation-based X-toon rendering
+#define SHADER_DEPTH_MAPPING 5
 
 static int shaderMode = SHADER_MODE_PBR;
 
+static GLuint FramebufferName;
 // Specificies if the normal is computed thanks to the normal map
 // defaultly no
 static int normalMapUsed = 0;
@@ -88,8 +91,6 @@ static float zMin = -350.0;
 static float r = 1.0;
 
 static int textureUsing = 0;
-
-static bool multipleScattering = false;
 
 static float zFocus = 0.0;
 // Camera control variables
@@ -206,6 +207,10 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 	{
 		switchShaderMode(SHADER_ORIENTATION);
 	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_5 && shaderMode != SHADER_MODE_PBR)
+	{
+		switchShaderMode(SHADER_DEPTH_MAPPING);
+	}
 	else if (action == GLFW_PRESS && key == GLFW_KEY_F5)
 	{
 		try
@@ -319,13 +324,6 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 	{
 		std::cout << "run a subdivision according loop scheme" << std::endl;
 		meshPtr->subdivide();
-	}
-	else if (action == GLFW_PRESS && key == GLFW_KEY_M)
-	{
-		std::cout << "multiple scattering toggled" << std::endl;
-		multipleScattering = !multipleScattering;
-		shaderProgramPtr->use();
-		shaderProgramPtr->set("multipleScattering", multipleScattering);
 	}
 }
 
@@ -484,6 +482,8 @@ void initScene (const std::string & meshFilename) {
 	glm::vec3 center;
 	meshPtr->computeBoundingSphere (center, meshScale);
 
+	shaderProgramPtr->set("meshCenter", center);
+
 	// Lighting
 
 	// Key light
@@ -589,11 +589,74 @@ void initScene (const std::string & meshFilename) {
 	r = 1.6f;
 }
 
+void initTextureBuffer()
+{
+	FramebufferName = 0;
+	glGenFramebuffers(1, &FramebufferName);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+	// The texture we're going to render to
+	GLuint renderedTexture;
+	glGenTextures(1, &renderedTexture);
+
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, renderedTexture);
+
+	// Give an empty image to OpenGL ( the last "0" )
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+	// Poor filtering. Needed !
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	// The depth buffer
+	GLuint depthrenderbuffer;
+	glGenRenderbuffers(1, &depthrenderbuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+
+	// Set "renderedTexture" as our colour attachement #0
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+
+	// Set the list of draw buffers.
+	GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+	// Always check that our framebuffer is ok
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		exitOnCriticalError(std::string("[Error creating framebuffer]"));
+
+	// Render to our framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+	glViewport(0, 0, 1024, 768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+	// The fullscreen quad's FBO
+	GLuint quad_VertexArrayID;
+	glGenVertexArrays(1, &quad_VertexArrayID);
+	glBindVertexArray(quad_VertexArrayID);
+
+	static const GLfloat g_quad_vertex_buffer_data[] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		1.0f,  1.0f, 0.0f,
+	};
+
+	GLuint quad_vertexbuffer;
+	glGenBuffers(1, &quad_vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+}
+
 void init (const std::string & meshFilename)
 {
 	initGLFW (); // Windowing system
 	initOpenGL (); // OpenGL Context and shader pipeline
 	initScene (meshFilename); // Actual scene to render
+	initTextureBuffer();
 }
 
 void clear ()
@@ -622,7 +685,12 @@ void render ()
 	shaderProgramPtr->set ("fillLightPosition", lightSources.at(1)->getTranslation());
 	shaderProgramPtr->set ("backLightPosition", lightSources.at(2)->getTranslation());
 	meshPtr->render ();
+	// Render to the screen
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 768, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, 1024, 768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 	shaderProgramPtr->stop ();
+
 }
 
 // Update any accessible variable based on the current time
