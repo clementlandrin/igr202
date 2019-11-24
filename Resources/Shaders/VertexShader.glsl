@@ -19,6 +19,7 @@ out vec3 fBackLightPosition;
 out float fDFocal;
 out float fDEye;
 out vec3 fTangent, fBitangent;
+out vec3 fPositionInWorld;
 
 void main() {
 	vec4 p = modelViewMat * vec4 (vPosition, 1.0);
@@ -36,7 +37,7 @@ void main() {
 	fFillLightPosition = vec3(modelViewMat * vec4(fillLightPosition,1));
 	fBackLightPosition = vec3(modelViewMat * vec4(backLightPosition,1));
 	fDFocal = clamp(1 - log(p.z/zMin)/log(r),0.0,1.0);
-	
+	fPositionInWorld = vPosition;
 	if(p.z<zFocus)
 	{
 		fDEye = clamp(1 - log(distance(p.xyz,vec3(0,0,0))/(zFocus-zMin))/log((zFocus-r*zMin)/(zFocus-zMin)),0.0,1.0);

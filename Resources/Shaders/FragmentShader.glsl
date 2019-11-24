@@ -61,6 +61,7 @@ in vec3 fBackLightPosition;
 in float fDFocal;
 in float fDEye;
 in vec3 fTangent, fBitangent;
+in vec3 fPositionInWorld;
 //out vec4 colorResponse; // Shader output: the color response attached to this fragment
 
 float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
@@ -245,9 +246,7 @@ void main()
 	}
 	else if (shaderMode == GLSL_SHADER_DEPTH_MAPPING)
 	{
-		float near = 1.0;
-		float far = 0.002;
-		float distanceNormalized = abs((gl_FragCoord.z - near)/far);
-		colorResponse = vec4(vec3(distanceNormalized), 1.0);
+		float distanceToLight = length(fPositionInWorld - fKeyLightPosition);
+		colorResponse = vec4((fPositionInWorld.xyz-fKeyLightPosition.xyz)/distanceToLight+0.5, fPosition.z);
 	}
 }

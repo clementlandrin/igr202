@@ -33,6 +33,9 @@
 #include "Material.h"
 #include "MeshLoader.h"
 
+static int screen_height = 768;
+static int screen_width = 1024;
+
 static const std::string SHADER_PATH ("../Resources/Shaders/");
 
 static const std::string MATERIAL_PATH ("../Resources/Materials/");
@@ -77,7 +80,10 @@ static int numberLightUsed = 1;
 
 static int shaderMode = SHADER_MODE_PBR;
 
-static GLuint FramebufferName;
+static GLuint FramebufferDepth;
+
+glm::vec3 center;
+
 // Specificies if the normal is computed thanks to the normal map
 // defaultly no
 static int normalMapUsed = 0;
@@ -138,6 +144,19 @@ void printHelp ()
 			  << "    * A: run the simplification using an octree" << std::endl;
 }
 
+void loadShaders()
+{
+	try
+	{
+		shaderProgramPtr = ShaderProgram::genBasicShaderProgram(SHADER_PATH + "VertexShader.glsl",
+			SHADER_PATH + "FragmentShader.glsl");
+	}
+	catch (std::exception & e)
+	{
+		exitOnCriticalError(std::string("[Error loading shader program]") + e.what());
+	}
+}
+
 void switchShaderMode(int mode)
 {
 	if(mode!=SHADER_MODE_PBR)
@@ -162,6 +181,8 @@ void windowSizeCallback (GLFWwindow * windowPtr, int width, int height)
 {
 	cameraPtr->setAspectRatio (static_cast<float>(width) / static_cast<float>(height));
 	glViewport (0, 0, (GLint)width, (GLint)height); // Dimension of the rendering region withminin the window
+	screen_height = height;
+	screen_width = width;
 }
 
 /// Executed each time a key is entered.
@@ -213,15 +234,7 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 	}
 	else if (action == GLFW_PRESS && key == GLFW_KEY_F5)
 	{
-		try
-		{
-			shaderProgramPtr = ShaderProgram::genBasicShaderProgram (SHADER_PATH + "VertexShader.glsl",
-														         	 SHADER_PATH + "FragmentShader.glsl");
-		} catch (std::exception & e)
-		{
-			exitOnCriticalError (std::string ("[Error loading shader program]") + e.what ());
-		}
-
+		loadShaders();
 		initScene(DEFAULT_MESH_FILENAME);
 		switchShaderMode(shaderMode);
 	}
@@ -448,15 +461,7 @@ void initOpenGL () {
 	glClearColor (0.0f, 0.0f, 0.0f, 1.0f); // specify the background color, used any time the framebuffer is cleared
 	// Loads and compile the programmable shader pipeline
 
-	try
-	{
-		shaderProgramPtr = ShaderProgram::genBasicShaderProgram (SHADER_PATH + "VertexShader.glsl",
-													         	 SHADER_PATH + "FragmentShader.glsl");
-	}
-	catch (std::exception & e)
-	{
-		exitOnCriticalError (std::string ("[Error loading shader program]") + e.what ());
-	}
+	loadShaders();
 }
 
 void initScene (const std::string & meshFilename) {
@@ -479,7 +484,6 @@ void initScene (const std::string & meshFilename) {
 	}
 	meshPtr->init ();
 
-	glm::vec3 center;
 	meshPtr->computeBoundingSphere (center, meshScale);
 
 	shaderProgramPtr->set("meshCenter", center);
@@ -493,7 +497,7 @@ void initScene (const std::string & meshFilename) {
 	lightSources.at(0)->setConeAngle(M_PI/3);
 	lightSources.at(0)->setRadialAttenuation(1.f);
 	lightSources.at(0)->setDistanceAttenuation(glm::vec3(1,0.000001,0.0000001));
-	lightSources.at(0)->setTranslation(center+glm::vec3(7.0*meshScale, 0.0, 7.0*meshScale));
+	lightSources.at(0)->setTranslation(center+glm::vec3(0.0, 0.0, 3.0*meshScale));
 	shaderProgramPtr->set ("keyLight.color", lightSources.at(0)->getColor());
 	shaderProgramPtr->set ("keyLight.intensity", lightSources.at(0)->getIntensity());
 	shaderProgramPtr->set ("keyLight.coneAngle", lightSources.at(0)->getConeAngle());
@@ -591,21 +595,20 @@ void initScene (const std::string & meshFilename) {
 
 void initTextureBuffer()
 {
-	FramebufferName = 0;
-	glGenFramebuffers(1, &FramebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+	FramebufferDepth = 0;
+	glGenFramebuffers(1, &FramebufferDepth);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferDepth);
 
 	// The texture we're going to render to
-	GLuint renderedTexture;
-	glGenTextures(1, &renderedTexture);
+	GLuint depthTexture;
+	glGenTextures(1, &depthTexture);
 
 	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, renderedTexture);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
 
-	// Give an empty image to OpenGL ( the last "0" )
+	// Give an empty image to OpenGL
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
-	// Poor filtering. Needed !
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -617,8 +620,7 @@ void initTextureBuffer()
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
 
 	// Set "renderedTexture" as our colour attachement #0
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
-
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, depthTexture, 0);
 	// Set the list of draw buffers.
 	GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
@@ -626,10 +628,6 @@ void initTextureBuffer()
 	// Always check that our framebuffer is ok
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		exitOnCriticalError(std::string("[Error creating framebuffer]"));
-
-	// Render to our framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-	glViewport(0, 0, 1024, 768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 
 	// The fullscreen quad's FBO
 	GLuint quad_VertexArrayID;
@@ -671,26 +669,36 @@ void clear ()
 // The main rendering call
 void render ()
 {
+	glm::mat4 projectionMatrix = cameraPtr->computeProjectionMatrix();
+	glm::mat4 modelMatrix = meshPtr->computeTransformMatrix();
+	glm::mat4 viewMatrix = cameraPtr->computeViewMatrix();
+	glm::mat4 modelViewMatrix = viewMatrix * modelMatrix;
+	glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
+
+	/* Render in texture the depth map. */
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferDepth);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
+
+	shaderProgramPtr->use(); // Activate the program to be used for upcoming primitive
+	shaderProgramPtr->set("projectionMat", projectionMatrix); // Compute the projection matrix of the camera and pass it to the GPU program
+	shaderProgramPtr->set("modelViewMat", modelViewMatrix);
+	shaderProgramPtr->set("normalMat", normalMatrix);
+	shaderProgramPtr->set("shaderMode", SHADER_DEPTH_MAPPING);
+	shaderProgramPtr->set("keyLightPosition", lightSources.at(0)->getTranslation());
+	shaderProgramPtr->set("fillLightPosition", lightSources.at(1)->getTranslation());
+	shaderProgramPtr->set("backLightPosition", lightSources.at(2)->getTranslation());
+	meshPtr->render();
+	
+	/* Render to screen. */
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, (GLint)screen_width, (GLint)screen_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, (GLint)screen_width, (GLint)screen_height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
 	shaderProgramPtr->use (); // Activate the program to be used for upcoming primitive
-	glm::mat4 projectionMatrix = cameraPtr->computeProjectionMatrix ();
-	shaderProgramPtr->set ("projectionMat", projectionMatrix); // Compute the projection matrix of the camera and pass it to the GPU program
-	glm::mat4 modelMatrix = meshPtr->computeTransformMatrix ();
-	glm::mat4 viewMatrix = cameraPtr->computeViewMatrix ();
-	glm::mat4 modelViewMatrix = viewMatrix * modelMatrix;
-	glm::mat4 normalMatrix = glm::transpose (glm::inverse (modelViewMatrix));
-	shaderProgramPtr->set ("modelViewMat", modelViewMatrix);
-	shaderProgramPtr->set ("normalMat", normalMatrix);
-	shaderProgramPtr->set ("keyLightPosition", lightSources.at(0)->getTranslation());
-	shaderProgramPtr->set ("fillLightPosition", lightSources.at(1)->getTranslation());
-	shaderProgramPtr->set ("backLightPosition", lightSources.at(2)->getTranslation());
+	shaderProgramPtr->set("shaderMode", shaderMode);
 	meshPtr->render ();
-	// Render to the screen
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 768, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 1024, 768); // Render on the whole framebuffer, complete from the lower left corner to the upper right
-	shaderProgramPtr->stop ();
 
+	shaderProgramPtr->stop();
 }
 
 // Update any accessible variable based on the current time
