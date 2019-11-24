@@ -172,3 +172,11 @@ To simplificate the model using an Adaptaive resolution implemented with an octr
 
 
 *Predefined simplification*
+
+### Subsurface scattering (Work In Progress)
+
+A shader is used to compute a depth map from the light point of view (for now, only the key light is considered) and write it in a texture using a framebuffer.
+
+![Alt text](Images/depth_mapping.png?raw=true "Depth mapping with light point of view")
+
+To visualize the result of the shader, press the 5 numeric key.
