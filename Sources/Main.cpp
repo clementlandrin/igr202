@@ -33,6 +33,9 @@
 #include "Material.h"
 #include "MeshLoader.h"
 
+glm::quat curQuat;
+glm::quat lastQuat;
+
 static int screen_height = 768;
 static int screen_width = 1024;
 
@@ -675,14 +678,19 @@ void render ()
 	glm::mat4 modelViewMatrix = viewMatrix * modelMatrix;
 	glm::mat4 normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
 
+	glm::mat4 rotationMatrix = glm::mat4_cast(curQuat);
+	glm::mat4 viewMatrixFromLight = inverse(rotationMatrix *  lightSources.at(0)->computeTransformMatrix());
+	glm::mat4 modelViewMatrixFromLight = viewMatrixFromLight * modelMatrix;
+	glm::mat4 normalMatrixFromLight = glm::transpose(glm::inverse(modelViewMatrixFromLight));
+
 	/* Render in texture the depth map. */
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferDepth);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
 
 	shaderProgramPtr->use(); // Activate the program to be used for upcoming primitive
 	shaderProgramPtr->set("projectionMat", projectionMatrix); // Compute the projection matrix of the camera and pass it to the GPU program
-	shaderProgramPtr->set("modelViewMat", modelViewMatrix);
-	shaderProgramPtr->set("normalMat", normalMatrix);
+	shaderProgramPtr->set("modelViewMat", modelViewMatrixFromLight);
+	shaderProgramPtr->set("normalMat", normalMatrixFromLight);
 	shaderProgramPtr->set("shaderMode", SHADER_DEPTH_MAPPING);
 	shaderProgramPtr->set("keyLightPosition", lightSources.at(0)->getTranslation());
 	shaderProgramPtr->set("fillLightPosition", lightSources.at(1)->getTranslation());
@@ -695,6 +703,9 @@ void render ()
 	glViewport(0, 0, (GLint)screen_width, (GLint)screen_height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
 	shaderProgramPtr->use (); // Activate the program to be used for upcoming primitive
+	shaderProgramPtr->set("projectionMat", projectionMatrix); // Compute the projection matrix of the camera and pass it to the GPU program
+	shaderProgramPtr->set("modelViewMat", modelViewMatrix);
+	shaderProgramPtr->set("normalMat", normalMatrix);
 	shaderProgramPtr->set("shaderMode", shaderMode);
 	meshPtr->render ();
 

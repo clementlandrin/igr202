@@ -247,6 +247,10 @@ void main()
 	else if (shaderMode == GLSL_SHADER_DEPTH_MAPPING)
 	{
 		float distanceToLight = length(fPositionInWorld - fKeyLightPosition);
-		colorResponse = vec4((fPositionInWorld.xyz-fKeyLightPosition.xyz)/distanceToLight+0.5, fPosition.z);
+		// angle with x axis
+		float alpha = acos((fPositionInWorld.x-fKeyLightPosition.x)/distanceToLight);
+		// angle with y axis
+		float beta = acos((fPositionInWorld.y-fKeyLightPosition.y)/distanceToLight);
+		colorResponse = vec4(alpha/M_PI, beta/M_PI, 0.0, distanceToLight);//vec4((fPositionInWorld.xyz-fKeyLightPosition.xyz)/distanceToLight+0.5, fPosition.z);
 	}
 }
