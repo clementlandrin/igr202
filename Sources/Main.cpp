@@ -80,10 +80,15 @@ static int numberLightUsed = 1;
 #define SHADER_ORIENTATION 4
 // 5 means a orientation-based X-toon rendering
 #define SHADER_DEPTH_MAPPING 5
+// 6 means visualize the distance traveled by light in the object
+#define SHADER_DISTANCE_TRAVELED 6
+
+static int subsurfaceScattering = 0;
 
 static int shaderMode = SHADER_MODE_PBR;
 
 static GLuint FramebufferDepth;
+GLuint depthTexture;
 
 glm::vec3 center;
 
@@ -235,6 +240,10 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 	{
 		switchShaderMode(SHADER_DEPTH_MAPPING);
 	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_6 && shaderMode != SHADER_MODE_PBR)
+	{
+		switchShaderMode(SHADER_DISTANCE_TRAVELED);
+	}
 	else if (action == GLFW_PRESS && key == GLFW_KEY_F5)
 	{
 		loadShaders();
@@ -340,6 +349,20 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 	{
 		std::cout << "run a subdivision according loop scheme" << std::endl;
 		meshPtr->subdivide();
+	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_B)
+	{
+		std::cout << "use subsurface scattering" << std::endl;
+		if (subsurfaceScattering == 2)
+		{
+			subsurfaceScattering = 0;
+		}
+		else
+		{
+			subsurfaceScattering = subsurfaceScattering + 1;
+		}
+		shaderProgramPtr->use();
+		shaderProgramPtr->set("subsurfaceScattering", subsurfaceScattering);
 	}
 }
 
@@ -603,7 +626,6 @@ void initTextureBuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferDepth);
 
 	// The texture we're going to render to
-	GLuint depthTexture;
 	glGenTextures(1, &depthTexture);
 
 	// "Bind" the newly created texture : all future texture functions will modify this texture
@@ -685,16 +707,23 @@ void render ()
 
 	/* Render in texture the depth map. */
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferDepth);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
 
 	shaderProgramPtr->use(); // Activate the program to be used for upcoming primitive
 	shaderProgramPtr->set("projectionMat", projectionMatrix); // Compute the projection matrix of the camera and pass it to the GPU program
 	shaderProgramPtr->set("modelViewMat", modelViewMatrixFromLight);
+	shaderProgramPtr->set("modelViewMatFromLight", modelViewMatrixFromLight);
+	shaderProgramPtr->set("meshCenterFromLight", modelViewMatrixFromLight * glm::vec4(center, 1.0));
 	shaderProgramPtr->set("normalMat", normalMatrixFromLight);
+	shaderProgramPtr->set("normalMatFromLight", normalMatrixFromLight);
 	shaderProgramPtr->set("shaderMode", SHADER_DEPTH_MAPPING);
 	shaderProgramPtr->set("keyLightPosition", lightSources.at(0)->getTranslation());
 	shaderProgramPtr->set("fillLightPosition", lightSources.at(1)->getTranslation());
 	shaderProgramPtr->set("backLightPosition", lightSources.at(2)->getTranslation());
+	shaderProgramPtr->set("fov", cameraPtr->getFov()); 
+	shaderProgramPtr->set("aspectRatio", cameraPtr->getAspectRatio());
 	meshPtr->render();
 	
 	/* Render to screen. */

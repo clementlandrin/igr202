@@ -14,6 +14,8 @@ layout(location = 0) out vec4 colorResponse;
 #define GLSL_SHADER_ORIENTATION 4
 // 5 means a orientation-based X-toon rendering
 #define GLSL_SHADER_DEPTH_MAPPING 5
+// 6 means visualize the distance traveled by light in the object
+#define GLSL_SHADER_DISTANCE_TRAVELED 6
 
 #define M_PI 3.1415926535897932384626433832795
 
@@ -50,7 +52,16 @@ uniform float zMax;
 uniform float zMin;
 uniform int normalMapUsed;
 uniform int textureUsing;
+uniform float fov;
+uniform float aspectRatio;
 uniform vec3 meshCenter;
+uniform vec4 meshCenterFromLight;
+uniform mat4 modelViewMat;
+uniform mat4 projectionMat;
+uniform mat4 modelViewMatFromLight;
+uniform sampler2D renderedTexture;
+uniform int subsurfaceScattering;
+uniform mat4 normalMatFromLight;
 
 in vec3 fPosition; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 in vec3 fNormal;
@@ -62,7 +73,33 @@ in float fDFocal;
 in float fDEye;
 in vec3 fTangent, fBitangent;
 in vec3 fPositionInWorld;
+in vec3 fNormalInWorld;
+
 //out vec4 colorResponse; // Shader output: the color response attached to this fragment
+
+float computeDistanceTraveledByLight()
+{
+	float fovInRad = fov/180.0*M_PI;
+	float vFovInRad = 2.0f*atan(tan(fovInRad*0.5f)/aspectRatio);
+	vec4 positionFromLight = modelViewMatFromLight * vec4(fPositionInWorld, 1.0);
+	
+	float alpha = atan(positionFromLight.x/length(vec3(positionFromLight.x, 0.0, positionFromLight.z)))/aspectRatio;
+	float beta = atan(positionFromLight.y/length(vec3(0.0, positionFromLight.y, positionFromLight.z)));
+
+	float distanceToCenter = abs(length((modelViewMatFromLight * vec4(meshCenter, 1.0)).xyz));
+	float distanceToLight = abs(length((modelViewMatFromLight * vec4(fPositionInWorld, 1.0)).xyz));
+
+	vec4 textureValue = texture(renderedTexture, vec2(alpha+0.5, beta+0.5));
+		
+	float distanceTraveled = abs((textureValue.x*distanceToCenter+distanceToCenter/2.0)-distanceToLight);
+
+	return abs(distanceTraveled-distanceToCenter/10.0)/distanceToCenter;
+}
+
+float computeEnergyFromSubsurfaceScattering(float distance)
+{
+	return 0.5*pow(10.0, -2.0*distance);
+}
 
 float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	vec3 wi = normalize(fLightPosition - fPosition);
@@ -96,6 +133,15 @@ float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	vec3 Li = lightSource.color * lightSource.intensity * (fs+fd) * max(dot(n, wi),0);
 	float d = distance(fLightPosition, fPosition);
 	float att = 1/(lightSource.distanceAttenuation[0]+lightSource.distanceAttenuation[1]*d+lightSource.distanceAttenuation[2]*pow(d,2));
+
+	if (subsurfaceScattering == 1)
+	{
+		Li = Li + vec3(abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(computeDistanceTraveledByLight()));
+	}
+	else if (subsurfaceScattering == 2)
+	{
+		Li = vec3(abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(computeDistanceTraveledByLight()));
+	}
 
 	if(textureUsing==1)
 	{
@@ -202,7 +248,8 @@ void main()
 			radiance = radiance * (LiKey+LiFill+LiBack) ;
 		}
 	    colorResponse = vec4 (radiance, 1.0); // Building an RGBA value from an RGB one.
-	} else if (shaderMode == GLSL_SHADER_BASIC_TOON)
+	} 
+	else if (shaderMode == GLSL_SHADER_BASIC_TOON)
 	{
 			colorResponse = vec4(computeNPR(n,fr),1.0);
 	} 
@@ -246,11 +293,13 @@ void main()
 	}
 	else if (shaderMode == GLSL_SHADER_DEPTH_MAPPING)
 	{
-		float distanceToLight = length(fPositionInWorld - fKeyLightPosition);
-		// angle with x axis
-		float alpha = acos((fPositionInWorld.x-fKeyLightPosition.x)/distanceToLight);
-		// angle with y axis
-		float beta = acos((fPositionInWorld.y-fKeyLightPosition.y)/distanceToLight);
-		colorResponse = vec4(alpha/M_PI, beta/M_PI, 0.0, distanceToLight);//vec4((fPositionInWorld.xyz-fKeyLightPosition.xyz)/distanceToLight+0.5, fPosition.z);
+		float distanceToLight = abs(length((modelViewMatFromLight * vec4(fPositionInWorld, 1.0)).xyz));
+		float distanceToCenter = abs(length((modelViewMatFromLight * vec4(meshCenter, 1.0)).xyz));
+
+		colorResponse = vec4((distanceToLight- distanceToCenter/2.0)/distanceToCenter);
+	}
+	else if (shaderMode == GLSL_SHADER_DISTANCE_TRAVELED)
+	{
+		colorResponse = vec4(computeDistanceTraveledByLight());
 	}
 }
