@@ -1,5 +1,28 @@
 WARNING : OpenGl 4.5 is needed to run the project.
 
+# Summary
+
+.* [Using](#using)
+..* [Moving the 3D model](#moving_the_3d_model)
+..* [Physically-Based Rendering](#physically-based_rendering)
+...* [Changing the number of lights](#changing_the_number_of_lights)
+...* [Enabling texturing](#enabling_texturing)
+...* [Enabling normal-mapping](#enabling_normal-mapping)
+..* [Toon-shading](#toon-shading)
+...* [Enabling Toon-shading](#enabling_toon-shading)
+...* [Default Toon-shading](#default_toon-shading)
+...* [X-Toon shading](#x-toon_shading)
+..* [Modifying the model structure](#modifying_the_model_structure)
+...* [Reloading the 3D model](#reloading_the_3d_model)
+...* [Filtering](#filtering)
+...* [Simplificating](#simplificating)
+..* [Subsurface scattering (Work In Progress)](#subsurface_scattering_(work_in_progress))
+...* [Depth mapping](#depth_mapping)
+...* [Rendering the distance traveled by the light](#rendering_the_distance_traveled_by_the_light)
+...* [Subsurface scattering contribution](#subsurface_scattering_contribution)
+..* [Building the project](#building_the_project)
+..* [Running the project](#running_the_project)
+
 # Using
 
 ## Moving the 3D model
@@ -147,7 +170,7 @@ A shader is used to compute a depth map from the light point of view (for now, o
 
 To visualize the result of the shader, press the 5 numeric key.
 
-### Render the depth traveled by the light
+### Rendering the depth traveled by the light
 
 A shader computes, for all fragments, the distance the light has traveled in the object. This is used to render the subsurface scattering effect.
 
@@ -162,7 +185,7 @@ The Phong computation is augmented with the subsurface scattering contribution w
 The subsurface scattering contribution is exponentially decreasing as the distance traveled by light increases.
 
 
-# Building
+# Building the project
 
 This is a standard CMake project. Building it consits in running:
 
@@ -181,7 +204,7 @@ The resuling BaseGL executable is automatically copied to the root BaseGL direct
 cmake --build build --config Release
 ```
 
-# Running
+# Running the project
 
 To run the program
 ```
