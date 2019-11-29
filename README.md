@@ -2,7 +2,7 @@ WARNING : OpenGl 4.5 is needed to run the project.
 
 # Summary
 
-⋅* [Using](#-using)
+* [Using](#-using)
 ⋅⋅* [Moving the 3D model](#-moving_the_3d_model)
 ⋅⋅* [Physically-Based Rendering](#-physically-based_rendering)
 ⋅⋅⋅* [Changing the number of lights](#-changing_the_number_of_lights)
@@ -20,8 +20,8 @@ WARNING : OpenGl 4.5 is needed to run the project.
 ⋅⋅⋅* [Depth mapping](#-depth_mapping)
 ⋅⋅⋅* [Rendering the distance traveled by the light](#-rendering_the_distance_traveled_by_the_light)
 ⋅⋅⋅* [Subsurface scattering contribution](#-subsurface_scattering_contribution)
-⋅* [Building the project](#-building_the_project)
-⋅* [Running the project](#-running_the_project)
+* [Building the project](#-building_the_project)
+* [Running the project](#-running_the_project)
 
 # Using
 
