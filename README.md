@@ -16,7 +16,7 @@ WARNING : OpenGl 4.5 is needed to run the project.
     * [Reloading the 3D model](#-reloading_the_3d_model)
     * [Filtering](#-filtering)
     * [Simplificating](#-simplificating)
-  * [Subsurface scattering (Work In Progress)](#-subsurface_scattering_(work_in_progress))
+  * [Subsurface scattering (Work In Progress)](#-subsurface_scattering_-work_in_progress-)
     * [Depth mapping](#-depth_mapping)
     * [Rendering the distance traveled by the light](#-rendering_the_distance_traveled_by_the_light)
     * [Subsurface scattering contribution](#-subsurface_scattering_contribution)
@@ -25,7 +25,7 @@ WARNING : OpenGl 4.5 is needed to run the project.
 
 # Using<a name="-using"></a>
 
-## Moving the 3D model
+## Moving the 3D model<a name="-moving_the_3d_model"></a>
 
 To move the 3D model, use the mouse:
 
@@ -33,7 +33,7 @@ To move the 3D model, use the mouse:
 * middle click + move the mouse to zoom-in or zoom-out
 * right click + move the mouse to move the model over X and Y direction
 
-## Physically-Based Rendering
+## Physically-Based Rendering<a name="-physically-based_rendering"></a>
 
 PBR was implemented using GGX microfacet model. It uses material albedo parameters that can be imported from a texture and a number of lights that can be changed.
 
@@ -41,7 +41,7 @@ PBR was implemented using GGX microfacet model. It uses material albedo paramete
 
 *PBR with GGX microfacet model*
 
-### Changing the number of lights
+### Changing the number of lights<a name="-changing_the_number_of_lights"></a>
 
 To use more or less lights, use keyboard's up and down arrows. The lights are designed according to the 3-points lighting method.
 
@@ -49,7 +49,7 @@ To use more or less lights, use keyboard's up and down arrows. The lights are de
 
 *3 point-lighting with key light, fill light and back light*
 
-### Enabling texturing
+### Enabling texturing<a name="-enabling_texturing"></a>
 
 To enable or disable teXturing, press the X key. By default, it textures the model with brick appearance.
 
@@ -71,7 +71,7 @@ static const std::string MATERIAL_NAME ("Name/");
 
 where Name is the name of any subfolder in Resources/Material.
 
-### Enabling normal-mapping
+### Enabling normal-mapping<a name="-enabling_normal-mapping"></a>
 
 To enable or disable Normal-mapping, press the N key. The texture used for normal-mapping is the one used in the Resources/Material/MATERIAL_NAME folder. 
 
@@ -89,15 +89,15 @@ As the UV coordinates of the textures does not fit the 3D model, normal disconti
 
 *Normal mapping discontinuity*
 
-## Toon-shading
+## Toon-shading<a name="-toon-shading"></a>
 
 While PBR aims to render images as photorealistic as possible, Toon-shading is a non-photorealistic rendering based on expressived styles.
 
-### Enabling Toon-shading
+### Enabling Toon-shading<a name="-enabling_toon-shading"></a>
 
 To enable and disable Toon-shading, press the T key.
 
-### Default Toon-shading
+### Default Toon-shading<a name="-default_toon-shading"></a>
 
 The default Toon-shading is a commonly used 1D texturing. 
 
@@ -113,7 +113,7 @@ The colors:
 
 Default shading mode can be recovered using the 1 numeric key.
 
-### X-Toon shading
+### X-Toon shading<a name="-x-toon_shading"></a>
 
 X-Toon shading is a method described in the paper X-Toon: An Extended Toon Shader written by Pascal Barla. Instead of providing a 1D texture to perform an expressive rendering, a 2D texture can be used. This way, the toon-shading is extended by a criteria. List of commonly used criteria:
 
@@ -127,16 +127,16 @@ X-Toon shading is a method described in the paper X-Toon: An Extended Toon Shade
 
 The resulting effect is that color changes are more sudden in the farthest regions than in the nearest ones. This way, less attention is paid to the silhouette. This effect only depends on the texture and the criteria.
 
-## Modifying the model structure
+## Modifying the model structure<a name="-modifying_the_model_structure"></a>
 
 In several applications, 3D models are not rendered in totality but modified before. For example, there is no need to render all the details of a far tree if only three pixels are affected by this model.
 
-### Reloading the 3D model
+### Reloading the 3D model<a name="-reloading_the_3d_model"></a>
 
 Playing with the sections below will distord the model with no doubt.
 To load the proper initial 3D model, press the F5 key.
 
-### Filtering
+### Filtering<a name="-filtering"></a>
 
 A Laplacian filtering can be performed. The idea is to move vertices along their Laplacian to filter details. To perform a Laplacian filtering, press the I, O and P keys. Each key has an associated coefficient. The higher is the coefficient, the fewer is the number of iterations needed to filter the model. But the lower is the coefficient, the more precise is the filtering.
 
@@ -148,7 +148,7 @@ A Laplacian filtering can be performed. The idea is to move vertices along their
 
 *Laplacian filtering*
 
-### Simplificating
+### Simplificating<a name="-simplificating"></a>
 
 The 3D model can be simplified using clustering.
 
@@ -160,9 +160,9 @@ To simplificate the model using an Adaptaive resolution implemented with an octr
 
 *Predefined simplification*
 
-## Subsurface scattering (Work In Progress)
+## Subsurface scattering (Work In Progress)<a name="--subsurface_scattering_-work_in_progress-"></a>
 
-### Depth mapping
+### Depth mapping<a name="-depth-mapping"></a>
 
 A shader is used to compute a depth map from the light point of view (for now, only the key light is considered) and write it in a texture using a framebuffer.
 
@@ -170,13 +170,13 @@ A shader is used to compute a depth map from the light point of view (for now, o
 
 To visualize the result of the shader, press the 5 numeric key.
 
-### Rendering the depth traveled by the light
+### Rendering the distance traveled by the light<a name="-rendering_the_distance_traveled_by_the_light"></a>
 
 A shader computes, for all fragments, the distance the light has traveled in the object. This is used to render the subsurface scattering effect.
 
 ![Alt text](Images/distance_traveled.png?raw=true "Distance traveled by light from the point it enters the object to the fragment"
 
-### Subsurface scattering contribution
+### Subsurface scattering contribution<a name="-subsurface-scattering-contribution"></a>
 
 The Phong computation is augmented with the subsurface scattering contribution when pressing the B key. Pressing B key again display the subsurface scattering effect only.
 
@@ -185,7 +185,7 @@ The Phong computation is augmented with the subsurface scattering contribution w
 The subsurface scattering contribution is exponentially decreasing as the distance traveled by light increases.
 
 
-# Building the project
+# Building the project<a name="-building-the-project"></a>
 
 This is a standard CMake project. Building it consits in running:
 
@@ -204,7 +204,7 @@ The resuling BaseGL executable is automatically copied to the root BaseGL direct
 cmake --build build --config Release
 ```
 
-# Running the project
+# Running the project<a name="-running-the-project"></a>
 
 To run the program
 ```
