@@ -582,29 +582,29 @@ void initScene (const std::string & meshFilename) {
 	GLuint normalTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Normal.png",true);
 	GLuint toneTex = loadTextureFromFileToGPU(MATERIAL_PATH+"Style.png",false);
 
-	shaderProgramPtr->set("material.albedoTex",0);
-	shaderProgramPtr->set("material.roughnessTex",1);
-	shaderProgramPtr->set("material.metallicTex",2);
-	shaderProgramPtr->set("material.ambientTex",3);
-	shaderProgramPtr->set("material.normalTex",4);
-	shaderProgramPtr->set("material.toneTex",5);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D,albedoTex);
+	shaderProgramPtr->set("material.albedoTex",1);
+	shaderProgramPtr->set("material.roughnessTex",2);
+	shaderProgramPtr->set("material.metallicTex",3);
+	shaderProgramPtr->set("material.ambientTex",4);
+	shaderProgramPtr->set("material.normalTex",5);
+	shaderProgramPtr->set("material.toneTex",6);
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D,roughnessTex);
+	glBindTexture(GL_TEXTURE_2D,albedoTex);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D,metallicTex);
+	glBindTexture(GL_TEXTURE_2D,roughnessTex);
 
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D,ambientTex);
+	glBindTexture(GL_TEXTURE_2D,metallicTex);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D,normalTex);
+	glBindTexture(GL_TEXTURE_2D,ambientTex);
 
 	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D,normalTex);
+
+	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D,toneTex);
 
 
