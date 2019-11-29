@@ -16,7 +16,7 @@ WARNING : OpenGl 4.5 is needed to run the project.
     * [Reloading the 3D model](#-reloading_the_3d_model)
     * [Filtering](#-filtering)
     * [Simplificating](#-simplificating)
-  * [Subsurface scattering (Work In Progress)](#-subsurface_scattering_-work_in_progress-)
+  * [Subsurface scattering (Work In Progress)](#-subsurface_scattering_-_work_in_progress)
     * [Depth mapping](#-depth_mapping)
     * [Rendering the distance traveled by the light](#-rendering_the_distance_traveled_by_the_light)
     * [Subsurface scattering contribution](#-subsurface_scattering_contribution)
@@ -160,7 +160,7 @@ To simplificate the model using an Adaptaive resolution implemented with an octr
 
 *Predefined simplification*
 
-## Subsurface scattering (Work In Progress)<a name="--subsurface_scattering_-work_in_progress-"></a>
+## Subsurface scattering - Work In Progress<a name="--subsurface_scattering_-_work_in_progress"></a>
 
 ### Depth mapping<a name="-depth-mapping"></a>
 
