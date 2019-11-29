@@ -1,41 +1,5 @@
 WARNING : OpenGl 4.5 is needed to run the project.
 
-# Building
-
-This is a standard CMake project. Building it consits in running:
-
-```
-cd <path-to-BaseGL-directory>
-mkdir build
-cd build
-cmake ..
-cd ..
-cmake --build build
-```
-
-The resuling BaseGL executable is automatically copied to the root BaseGL directory, so that resources (shaders, meshes) can be loaded easily. By default, the program is compile in Debug mode. For a high performance Release binary, just us:
-
-```
-cmake --build build --config Release
-```
-
-# Running
-
-To run the program
-```
-cd <path-to-BaseGL-directory>
-./BaseGL [file.off]
-```
-Note that a collection of example meshes are provided in the Resources/Models directory. 
-
-When starting to edit the source code, rerun 
-
-```
-cmake --build build 
-```
-
-to recompile. The resulting binary to use is always the one at located in the BaseGL directory, you can safely ignore whatever is generated in the build directory. 
-
 # Using
 
 ## Moving the 3D model
@@ -173,10 +137,63 @@ To simplificate the model using an Adaptaive resolution implemented with an octr
 
 *Predefined simplification*
 
-### Subsurface scattering (Work In Progress)
+## Subsurface scattering (Work In Progress)
+
+### Depth mapping
 
 A shader is used to compute a depth map from the light point of view (for now, only the key light is considered) and write it in a texture using a framebuffer.
 
 ![Alt text](Images/depth_mapping.png?raw=true "Depth mapping with light point of view")
 
 To visualize the result of the shader, press the 5 numeric key.
+
+### Render the depth traveled by the light
+
+A shader computes, for all fragments, the distance the light has traveled in the object. This is used to render the subsurface scattering effect.
+
+![Alt text](Images/distance_traveled.png?raw=true "Distance traveled by light from the point it enters the object to the fragment"
+
+### Subsurface scattering contribution
+
+The Phong computation is augmented with the subsurface scattering contribution when pressing the B key. Pressing B key again display the subsurface scattering effect only.
+
+![Alt text](Images/subsurface_scattering.png?raw=true "Result of the subsurface scattering, with light behind the object"
+
+The subsurface scattering contribution is exponentially decreasing as the distance traveled by light increases.
+
+
+# Building
+
+This is a standard CMake project. Building it consits in running:
+
+```
+cd <path-to-BaseGL-directory>
+mkdir build
+cd build
+cmake ..
+cd ..
+cmake --build build
+```
+
+The resuling BaseGL executable is automatically copied to the root BaseGL directory, so that resources (shaders, meshes) can be loaded easily. By default, the program is compile in Debug mode. For a high performance Release binary, just us:
+
+```
+cmake --build build --config Release
+```
+
+# Running
+
+To run the program
+```
+cd <path-to-BaseGL-directory>
+./BaseGL [file.off]
+```
+Note that a collection of example meshes are provided in the Resources/Models directory. 
+
+When starting to edit the source code, rerun 
+
+```
+cmake --build build 
+```
+
+to recompile. The resulting binary to use is always the one at located in the BaseGL directory, you can safely ignore whatever is generated in the build directory. 
