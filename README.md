@@ -23,7 +23,7 @@ WARNING : OpenGl 4.5 is needed to run the project.
 * [Building the project](#-building_the_project)
 * [Running the project](#-running_the_project)
 
-# Using
+# Using<a name="-using"></a>
 
 ## Moving the 3D model
 
