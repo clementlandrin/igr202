@@ -180,7 +180,7 @@ A shader computes, for all fragments, the distance the light has traveled in the
 
 The Phong computation is augmented with the subsurface scattering contribution when pressing the B key. Pressing B key again display the subsurface scattering effect only.
 
-![Alt text](Images/subsurface_scattering.png?raw=true "Result of the subsurface scattering, with light behind the object")
+![Alt text](Images/subsurface_scattering_only.png?raw=true "Result of the subsurface scattering, with light behind the object")
 
 The subsurface scattering contribution is exponentially decreasing as the distance traveled by light increases.
 
