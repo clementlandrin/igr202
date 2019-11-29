@@ -174,13 +174,13 @@ To visualize the result of the shader, press the 5 numeric key.
 
 A shader computes, for all fragments, the distance the light has traveled in the object. This is used to render the subsurface scattering effect.
 
-![Alt text](Images/distance_traveled.png?raw=true "Distance traveled by light from the point it enters the object to the fragment"
+![Alt text](Images/distance_traveled.png?raw=true "Distance traveled by light from the point it enters the object to the fragment")
 
 ### Subsurface scattering contribution<a name="-subsurface-scattering-contribution"></a>
 
 The Phong computation is augmented with the subsurface scattering contribution when pressing the B key. Pressing B key again display the subsurface scattering effect only.
 
-![Alt text](Images/subsurface_scattering.png?raw=true "Result of the subsurface scattering, with light behind the object"
+![Alt text](Images/subsurface_scattering.png?raw=true "Result of the subsurface scattering, with light behind the object")
 
 The subsurface scattering contribution is exponentially decreasing as the distance traveled by light increases.
 
