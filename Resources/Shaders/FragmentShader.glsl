@@ -63,6 +63,8 @@ uniform sampler2D renderedTexture;
 uniform int subsurfaceScattering;
 uniform mat4 normalMatFromLight;
 
+float sssSkinDistance = 0.01;
+
 in vec3 fPosition; // Shader input, linearly interpolated by default from the previous stage (here the vertex shader)
 in vec3 fNormal;
 in vec2 fTexCoord;
@@ -96,39 +98,45 @@ float computeDistanceTraveledByLight()
 	return abs(distanceTraveled-distanceToCenter/10.0)/distanceToCenter;
 }
 
-float computeEnergyFromSubsurfaceScattering(float distance)
+vec3 computeEnergyFromSubsurfaceScattering(float distance)
 {
-	return 0.5*pow(10.0, -2.0*distance);
+	float energy = 1.0*pow(1.1, -75.0*distance);
+	/*if (distance < sssSkinDistance)
+	{
+		float redContribution =  (sssSkinDistance - distance)/sssSkinDistance;
+		return vec3(energy * redContribution, energy * (1 - redContribution), energy * (1 - redContribution));
+	}*/
+	return vec3(energy);
 }
 
-float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
+vec3 computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	vec3 wi = normalize(fLightPosition - fPosition);
 	vec3 wo = normalize(-fPosition);
 	vec3 wh = normalize(wi+wo);
 
-	float fd = material.kd/M_PI;
+	vec3 fd = vec3(material.kd/M_PI);
 
-	float metallic;
-	float roughness;
-
+	vec3 metallic;
+	vec3 roughness;
 	if(textureUsing ==1)
 	{
-		metallic = texture(material.metallicTex,fTexCoord).r;
-		roughness = texture(material.roughnessTex,fTexCoord).r;
+		metallic = texture(material.metallicTex,fTexCoord).xyz;
+		roughness = texture(material.roughnessTex,fTexCoord).xyz;
 	} 
 	else 
 	{
-		metallic = material.metallic;
-		roughness = material.roughness;
+		metallic = vec3(material.metallic);
+		roughness = vec3(material.roughness);
 	}
-
+	
 	float ambient = texture(material.ambientTex,fTexCoord).r;
-	float F = metallic + (1-metallic)*pow(1-max(0,dot(wi,wh)),5);
-	float D = pow(roughness,2)/(M_PI*pow((1+(pow(roughness,2)-1)*pow(dot(n,wh),2)),2));
-	float Gi = 2*dot(n,wi)/(dot(n,wi)+sqrt(pow(roughness,2)+(1-pow(roughness,2))*pow(dot(n,wi),2)));
-	float Go =  2*dot(n,wo)/(dot(n,wo)+sqrt(pow(roughness,2)+(1-pow(roughness,2))*pow(dot(n,wo),2)));
-	float G = Gi * Go;
-	float fs = D*F*G/(4*dot(n,wi)*dot(n,wo));
+	vec3 F = vec3(metallic.r + (1-metallic.r)*pow(1-max(0,dot(wi,wh)),5), metallic.g + (1-metallic.g)*pow(1-max(0,dot(wi,wh)),5), metallic.b + (1-metallic.b)*pow(1-max(0,dot(wi,wh)),5));
+	vec3 D = vec3(pow(roughness.r,2)/(M_PI*pow((1+(pow(roughness.r,2)-1)*pow(dot(n,wh),2)),2)),pow(roughness.g,2)/(M_PI*pow((1+(pow(roughness.g,2)-1)*pow(dot(n,wh),2)),2)),pow(roughness.b,2)/(M_PI*pow((1+(pow(roughness.b,2)-1)*pow(dot(n,wh),2)),2)));
+	vec3 Gi = vec3(2*dot(n,wi)/(dot(n,wi)+sqrt(pow(roughness.r,2)+(1-pow(roughness.r,2))*pow(dot(n,wi),2))), 2*dot(n,wi)/(dot(n,wi)+sqrt(pow(roughness.g,2)+(1-pow(roughness.g,2))*pow(dot(n,wi),2))), 2*dot(n,wi)/(dot(n,wi)+sqrt(pow(roughness.b,2)+(1-pow(roughness.b,2))*pow(dot(n,wi),2))));
+	vec3 Go =  vec3(2*dot(n,wo)/(dot(n,wo)+sqrt(pow(roughness.r,2)+(1-pow(roughness.r,2))*pow(dot(n,wo),2))), 2*dot(n,wo)/(dot(n,wo)+sqrt(pow(roughness.g,2)+(1-pow(roughness.g,2))*pow(dot(n,wo),2))), 2*dot(n,wo)/(dot(n,wo)+sqrt(pow(roughness.b,2)+(1-pow(roughness.b,2))*pow(dot(n,wo),2))));
+	
+	vec3 G = Gi * Go;
+	vec3 fs = D*F*G/(4*dot(n,wi)*dot(n,wo));
 
 	vec3 Li = lightSource.color * lightSource.intensity * (fs+fd) * max(dot(n, wi),0);
 	float d = distance(fLightPosition, fPosition);
@@ -136,20 +144,20 @@ float computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 
 	if (subsurfaceScattering == 1)
 	{
-		Li = Li + vec3(abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(computeDistanceTraveledByLight()));
+		Li = Li + abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(computeDistanceTraveledByLight());
 	}
 	else if (subsurfaceScattering == 2)
 	{
-		Li = vec3(abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(computeDistanceTraveledByLight()));
+		Li = abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(computeDistanceTraveledByLight());
 	}
 
 	if(textureUsing==1)
 	{
-		return Li[0]*att*ambient;
+		return Li*att*ambient;
 	} 
 	else 
 	{
-		return Li[0]*att;
+		return Li*att;
 	}
 }
 
@@ -235,16 +243,16 @@ void main()
 
 	if(shaderMode == GLSL_SHADER_MODE_PBR)
 	{
-		float LiKey = computeLiFromLight(keyLight, fKeyLightPosition, n);
+		vec3 LiKey = computeLiFromLight(keyLight, fKeyLightPosition, n);
 		vec3 radiance =  fr;
 		if(numberLightUsed == 1){
 			radiance = radiance * LiKey;
 		} else if (numberLightUsed == 2){
-			float LiFill = computeLiFromLight(fillLight, fFillLightPosition,n);
+			vec3 LiFill = computeLiFromLight(fillLight, fFillLightPosition,n);
 			radiance = radiance * (LiKey + LiFill);
 		} else if (numberLightUsed == 3){
-			float LiFill = computeLiFromLight(fillLight, fFillLightPosition,n);
-			float LiBack = computeLiFromLight(backLight, fBackLightPosition,n);
+			vec3 LiFill = computeLiFromLight(fillLight, fFillLightPosition,n);
+			vec3 LiBack = computeLiFromLight(backLight, fBackLightPosition,n);
 			radiance = radiance * (LiKey+LiFill+LiBack) ;
 		}
 	    colorResponse = vec4 (radiance, 1.0); // Building an RGBA value from an RGB one.

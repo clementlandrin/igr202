@@ -574,12 +574,22 @@ void initScene (const std::string & meshFilename) {
 	shaderProgramPtr->set ("material.metallic", materialPtr->getMetallic());
 	shaderProgramPtr->set ("material.roughness", materialPtr->getRoughness());
 
+	bool isMetallicRGBA = false;
+	bool isBaseColorRGBA = false;
 
-	GLuint albedoTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Base_Color.png",false);
-	GLuint roughnessTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Roughness.png",false);
-	GLuint metallicTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Metallic.png",false);
-	GLuint ambientTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Ambient_Occlusion.png",false);
-	GLuint normalTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Normal.png",true);
+	if (MATERIAL_NAME == "Skin2/")
+	{
+		isMetallicRGBA = true;
+	}
+	if (MATERIAL_NAME == "Skin/")
+	{
+		isBaseColorRGBA = true;
+	}
+	GLuint albedoTex = loadTextureFromFileToGPU(MATERIAL_PATH+ MATERIAL_NAME +"Base_Color.png", isBaseColorRGBA);
+	GLuint roughnessTex = loadTextureFromFileToGPU(MATERIAL_PATH+ MATERIAL_NAME +"Roughness.png",false);
+	GLuint metallicTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Metallic.png", isMetallicRGBA);
+	GLuint ambientTex = loadTextureFromFileToGPU(MATERIAL_PATH+ MATERIAL_NAME +"Ambient_Occlusion.png",false);
+	GLuint normalTex = loadTextureFromFileToGPU(MATERIAL_PATH+ MATERIAL_NAME +"Normal.png",true);
 	GLuint toneTex = loadTextureFromFileToGPU(MATERIAL_PATH+"Style.png",false);
 
 	shaderProgramPtr->set("material.albedoTex",1);
