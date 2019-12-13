@@ -62,6 +62,8 @@ uniform mat4 modelViewMatFromLight;
 uniform sampler2D renderedTexture;
 uniform int subsurfaceScattering;
 uniform mat4 normalMatFromLight;
+uniform int windowHeight;
+uniform float windowRatio;
 
 float sssSkinDistance = 0.01;
 
@@ -77,12 +79,11 @@ in vec3 fTangent, fBitangent;
 in vec3 fPositionInWorld;
 in vec3 fNormalInWorld;
 
-//out vec4 colorResponse; // Shader output: the color response attached to this fragment
-
 float computeDistanceTraveledByLight()
 {
 	float fovInRad = fov/180.0*M_PI;
 	float vFovInRad = 2.0f*atan(tan(fovInRad*0.5f)/aspectRatio);
+
 	vec4 positionFromLight = modelViewMatFromLight * vec4(fPositionInWorld, 1.0);
 	
 	float alpha = atan(positionFromLight.x/length(vec3(positionFromLight.x, 0.0, positionFromLight.z)))/aspectRatio;
@@ -90,9 +91,9 @@ float computeDistanceTraveledByLight()
 
 	float distanceToCenter = abs(length((modelViewMatFromLight * vec4(meshCenter, 1.0)).xyz));
 	float distanceToLight = abs(length((modelViewMatFromLight * vec4(fPositionInWorld, 1.0)).xyz));
-
+	
 	vec4 textureValue = texture(renderedTexture, vec2(alpha+0.5, beta+0.5));
-		
+
 	float distanceTraveled = abs((textureValue.x*distanceToCenter+distanceToCenter/2.0)-distanceToLight);
 
 	return abs(distanceTraveled-distanceToCenter/10.0)/distanceToCenter;
@@ -100,12 +101,7 @@ float computeDistanceTraveledByLight()
 
 vec3 computeEnergyFromSubsurfaceScattering(float distance)
 {
-	float energy = 1.0*pow(1.1, -75.0*distance);
-	/*if (distance < sssSkinDistance)
-	{
-		float redContribution =  (sssSkinDistance - distance)/sssSkinDistance;
-		return vec3(energy * redContribution, energy * (1 - redContribution), energy * (1 - redContribution));
-	}*/
+	float energy = 0.5*pow(1.1, -75.0*distance);
 	return vec3(energy);
 }
 
@@ -142,13 +138,28 @@ vec3 computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	float d = distance(fLightPosition, fPosition);
 	float att = 1/(lightSource.distanceAttenuation[0]+lightSource.distanceAttenuation[1]*d+lightSource.distanceAttenuation[2]*pow(d,2));
 
+	float distanceTraveled = computeDistanceTraveledByLight();
+	vec3 contributionFromSSS =  vec3(abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(distanceTraveled));
+
+	/*float distanceToEnhancedRed = 0.30;
+	if (dot(n,wi)<0 && distanceTraveled < distanceToEnhancedRed / 2.0)
+	{
+		float enhancedFactor = 1.0 + (distanceToEnhancedRed/2.0 - distanceTraveled)*2.0/distanceToEnhancedRed;
+		contributionFromSSS = pow(enhancedFactor, 3.0) * vec3(contributionFromSSS.x*2.0, contributionFromSSS.y*enhancedFactor, contributionFromSSS.z*enhancedFactor);
+	}
+	else if (dot(n,wi)<0 && distanceTraveled < distanceToEnhancedRed)
+	{
+		float enhancedFactor = 1.0 + (distanceToEnhancedRed - distanceTraveled)*2.0/distanceToEnhancedRed;
+		contributionFromSSS = vec3(contributionFromSSS.x*enhancedFactor, contributionFromSSS.y, contributionFromSSS.z);
+	}*/
+
 	if (subsurfaceScattering == 1)
 	{
-		Li = Li + abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(computeDistanceTraveledByLight());
+		Li = Li + contributionFromSSS;
 	}
 	else if (subsurfaceScattering == 2)
 	{
-		Li = abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(computeDistanceTraveledByLight());
+		Li = contributionFromSSS;
 	}
 
 	if(textureUsing==1)
@@ -304,7 +315,7 @@ void main()
 		float distanceToLight = abs(length((modelViewMatFromLight * vec4(fPositionInWorld, 1.0)).xyz));
 		float distanceToCenter = abs(length((modelViewMatFromLight * vec4(meshCenter, 1.0)).xyz));
 
-		colorResponse = vec4((distanceToLight- distanceToCenter/2.0)/distanceToCenter);
+		colorResponse = vec4((distanceToLight-distanceToCenter/2.0)/distanceToCenter);
 	}
 	else if (shaderMode == GLSL_SHADER_DISTANCE_TRAVELED)
 	{

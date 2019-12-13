@@ -39,13 +39,18 @@ glm::quat lastQuat;
 static int screen_height = 768;
 static int screen_width = 1024;
 
+static const float initialScreenHeight = 768.0;
+
 static const std::string SHADER_PATH ("../Resources/Shaders/");
 
 static const std::string MATERIAL_PATH ("../Resources/Materials/");
 
-static const std::string MATERIAL_NAME ("Brick/");
+static const std::string DEFAULT_MESH_PATH ("../Resources/Models/");
 
-static const std::string DEFAULT_MESH_FILENAME ("../Resources/Models/face.off");
+static std::vector<std::string> modelNames;
+static std::vector<std::string> materialNames;
+static int meshIndex = 0;
+static int materialIndex = 0;
 
 using namespace std;
 
@@ -122,9 +127,11 @@ void render();
 
 void initScene(const std::string & meshFilename);
 
-void init (const std::string & meshFilename);
+void init ();
 
 void clear ();
+
+void initTextures();
 
 void printHelp ()
 {
@@ -150,6 +157,29 @@ void printHelp ()
 			  << "    * P: run a laplacian filtering with alpha = 1.0" << std::endl
 			  << "    * S: run the simplification with a predefined resolution" << std::endl
 			  << "    * A: run the simplification using an octree" << std::endl;
+}
+
+void initModels()
+{
+	modelNames.resize(8);
+	modelNames[0] = (std::string)"/face.off";
+	modelNames[1] = (std::string)"/rhino.off";
+	modelNames[2] = (std::string)"/man.off";
+	modelNames[3] = (std::string)"/denis.off";
+	modelNames[4] = (std::string)"/killeroo.off";
+	modelNames[5] = (std::string)"/sphere.off";
+	modelNames[6] = (std::string)"/monkey.off";
+	modelNames[7] = (std::string)"/dragon.off";
+}
+
+void initTextureNames()
+{
+	materialNames.resize(5);
+	materialNames[0] = (std::string)"/Brick/";
+	materialNames[1] = (std::string)"/Skin2/";
+	materialNames[2] = (std::string)"/Wood/";
+	materialNames[3] = (std::string)"/Metal/";
+	materialNames[4] = (std::string)"/Skin/";
 }
 
 void loadShaders()
@@ -191,6 +221,10 @@ void windowSizeCallback (GLFWwindow * windowPtr, int width, int height)
 	glViewport (0, 0, (GLint)width, (GLint)height); // Dimension of the rendering region withminin the window
 	screen_height = height;
 	screen_width = width;
+	shaderProgramPtr->use();
+	shaderProgramPtr->set("windowHeight", height);
+	shaderProgramPtr->set("windowRatio", (float)height / (float)width);
+	std::cout << "windowRatio " << (float)height / (float)width << std::endl;
 }
 
 /// Executed each time a key is entered.
@@ -247,7 +281,7 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 	else if (action == GLFW_PRESS && key == GLFW_KEY_F5)
 	{
 		loadShaders();
-		initScene(DEFAULT_MESH_FILENAME);
+		initScene(DEFAULT_MESH_PATH+modelNames[meshIndex]);
 		switchShaderMode(shaderMode);
 	}
 	else if (action == GLFW_PRESS && key == GLFW_KEY_UP)
@@ -261,6 +295,22 @@ void keyCallback (GLFWwindow * windowPtr, int key, int scancode, int action, int
 		numberLightUsed = max(numberLightUsed-1,1);
 		shaderProgramPtr->use();
 		shaderProgramPtr->set("numberLightUsed",numberLightUsed);
+	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT)
+	{
+		if (meshIndex < modelNames.size() - 1)
+			meshIndex += 1;
+		else
+			meshIndex = 0;
+		initScene(DEFAULT_MESH_PATH + modelNames[meshIndex]);
+	}
+	else if (action == GLFW_PRESS && key == GLFW_KEY_LEFT)
+	{
+		if (materialIndex < materialNames.size() - 1)
+			materialIndex += 1;
+		else
+			materialIndex = 0;
+		initTextures();
 	}
 	else if (action == GLFW_PRESS && key == GLFW_KEY_Q)
 	{
@@ -490,6 +540,55 @@ void initOpenGL () {
 	loadShaders();
 }
 
+void initTextures()
+{
+	shaderProgramPtr->use();
+
+	bool isMetallicRGBA = false;
+	bool isBaseColorRGBA = false;
+
+	if (materialNames[materialIndex] == "Skin2/")
+	{
+		isMetallicRGBA = true;
+	}
+	if (materialNames[materialIndex] == "Skin/")
+	{
+		isBaseColorRGBA = true;
+	}
+
+	GLuint albedoTex = loadTextureFromFileToGPU(MATERIAL_PATH + materialNames[materialIndex] + "Base_Color.png", isBaseColorRGBA);
+	GLuint roughnessTex = loadTextureFromFileToGPU(MATERIAL_PATH + materialNames[materialIndex] + "Roughness.png", false);
+	GLuint metallicTex = loadTextureFromFileToGPU(MATERIAL_PATH + materialNames[materialIndex] + "Metallic.png", isMetallicRGBA);
+	GLuint ambientTex = loadTextureFromFileToGPU(MATERIAL_PATH + materialNames[materialIndex] + "Ambient_Occlusion.png", false);
+	GLuint normalTex = loadTextureFromFileToGPU(MATERIAL_PATH + materialNames[materialIndex] + "Normal.png", true);
+	GLuint toneTex = loadTextureFromFileToGPU(MATERIAL_PATH + "Style.png", false);
+
+	shaderProgramPtr->set("material.albedoTex", 1);
+	shaderProgramPtr->set("material.roughnessTex", 2);
+	shaderProgramPtr->set("material.metallicTex", 3);
+	shaderProgramPtr->set("material.ambientTex", 4);
+	shaderProgramPtr->set("material.normalTex", 5);
+	shaderProgramPtr->set("material.toneTex", 6);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, albedoTex);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, roughnessTex);
+
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, metallicTex);
+
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, ambientTex);
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, normalTex);
+
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, toneTex);
+}
+
 void initScene (const std::string & meshFilename) {
 	// Camera
 	int width, height;
@@ -512,7 +611,10 @@ void initScene (const std::string & meshFilename) {
 
 	meshPtr->computeBoundingSphere (center, meshScale);
 
+	shaderProgramPtr->use();
 	shaderProgramPtr->set("meshCenter", center);
+	shaderProgramPtr->set("windowHeight", height);
+	shaderProgramPtr->set("windowRatio", (float)height / (float)width);
 
 	// Lighting
 
@@ -565,58 +667,16 @@ void initScene (const std::string & meshFilename) {
 
 	// Material
 	materialPtr = std::make_shared<Material> ();
-	materialPtr->setAlbedo(glm::vec3(0.4,0.6,0.2));
+	materialPtr->setAlbedo(glm::vec3(1.0,0.8,0.6));
 	materialPtr->setKd(0.2);
-	materialPtr->setMetallic(0.9);
-	materialPtr->setRoughness(0.1);
+	materialPtr->setMetallic(0.1);
+	materialPtr->setRoughness(0.6);
 	shaderProgramPtr->set ("material.kd", materialPtr->getKd());
 	shaderProgramPtr->set ("material.albedo", materialPtr->getAlbedo());
 	shaderProgramPtr->set ("material.metallic", materialPtr->getMetallic());
 	shaderProgramPtr->set ("material.roughness", materialPtr->getRoughness());
-
-	bool isMetallicRGBA = false;
-	bool isBaseColorRGBA = false;
-
-	if (MATERIAL_NAME == "Skin2/")
-	{
-		isMetallicRGBA = true;
-	}
-	if (MATERIAL_NAME == "Skin/")
-	{
-		isBaseColorRGBA = true;
-	}
-	GLuint albedoTex = loadTextureFromFileToGPU(MATERIAL_PATH+ MATERIAL_NAME +"Base_Color.png", isBaseColorRGBA);
-	GLuint roughnessTex = loadTextureFromFileToGPU(MATERIAL_PATH+ MATERIAL_NAME +"Roughness.png",false);
-	GLuint metallicTex = loadTextureFromFileToGPU(MATERIAL_PATH+MATERIAL_NAME+"Metallic.png", isMetallicRGBA);
-	GLuint ambientTex = loadTextureFromFileToGPU(MATERIAL_PATH+ MATERIAL_NAME +"Ambient_Occlusion.png",false);
-	GLuint normalTex = loadTextureFromFileToGPU(MATERIAL_PATH+ MATERIAL_NAME +"Normal.png",true);
-	GLuint toneTex = loadTextureFromFileToGPU(MATERIAL_PATH+"Style.png",false);
-
-	shaderProgramPtr->set("material.albedoTex",1);
-	shaderProgramPtr->set("material.roughnessTex",2);
-	shaderProgramPtr->set("material.metallicTex",3);
-	shaderProgramPtr->set("material.ambientTex",4);
-	shaderProgramPtr->set("material.normalTex",5);
-	shaderProgramPtr->set("material.toneTex",6);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D,albedoTex);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D,roughnessTex);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D,metallicTex);
-
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D,ambientTex);
-
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D,normalTex);
-
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D,toneTex);
-
+	
+	initTextures();
 
 	// Adjust the camera to the actual mesh
 	cameraPtr->setTranslation (center + glm::vec3 (0.0, 0.0, 3.0 * meshScale));
@@ -684,11 +744,13 @@ void initTextureBuffer()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
 }
 
-void init (const std::string & meshFilename)
+void init ()
 {
+	initTextureNames();
+	initModels();
 	initGLFW (); // Windowing system
 	initOpenGL (); // OpenGL Context and shader pipeline
-	initScene (meshFilename); // Actual scene to render
+	initScene (DEFAULT_MESH_PATH+modelNames[meshIndex]); // Actual scene to render
 	initTextureBuffer();
 }
 
@@ -775,7 +837,7 @@ int main (int argc, char ** argv)
 	if (argc > 2)
 		usage (argv[0]);
 
-	init (argc == 1 ? DEFAULT_MESH_FILENAME : argv[1]);
+	init ();
 
 	while (!glfwWindowShouldClose (windowPtr))
 	{

@@ -33,7 +33,7 @@ void main() {
 	fBitangent = normalize(fBitangent);
 	fBitangent = (normalMat* vec4(normalize(cross(fNormal,fTangent)),0.0)).xyz;
     fPosition = p.xyz;
-    fTexCoord = vec2(5.0*vTexCoord.x, 5.0*vTexCoord.y);
+    fTexCoord = vec2(3.0*vTexCoord.x, 3.0*vTexCoord.y);
 	fKeyLightPosition = vec3(modelViewMat * vec4(keyLightPosition,1));
 	fFillLightPosition = vec3(modelViewMat * vec4(fillLightPosition,1));
 	fBackLightPosition = vec3(modelViewMat * vec4(backLightPosition,1));
