@@ -157,7 +157,6 @@ To simplificate the model using an Adaptaive resolution implemented with an octr
 
 ![Alt text](Images/simplification.png?raw=true "Predefined simplification")
 
-
 *Predefined simplification*
 
 ## Subsurface scattering - Work In Progress<a name="-subsurface_scattering"></a>
@@ -168,6 +167,8 @@ A shader is used to compute a depth map from the light point of view (for now, o
 
 ![Alt text](Images/depth_mapping.png?raw=true "Depth mapping with light point of view")
 
+*Depth mapping with light point of view*
+
 To visualize the result of the shader, press the 5 numeric key.
 
 ### Rendering the distance traveled by the light<a name="-rendering_the_distance_traveled_by_the_light"></a>
@@ -176,14 +177,35 @@ A shader computes, for all fragments, the distance the light has traveled in the
 
 ![Alt text](Images/distance_traveled.png?raw=true "Distance traveled by light from the point it enters the object to the fragment")
 
+*Distance traveled by light from the point it enters the object to the fragment*
+
 ### Subsurface scattering contribution<a name="-subsurface-scattering-contribution"></a>
 
 The Phong computation is augmented with the subsurface scattering contribution when pressing the B key. Pressing B key again display the subsurface scattering effect only.
 
 ![Alt text](Images/subsurface_scattering_only.png?raw=true "Result of the subsurface scattering, with light behind the object")
 
+*Result of the subsurface scattering, with light behind the object*
+
 The subsurface scattering contribution is exponentially decreasing as the distance traveled by light increases.
 
+### Subsurface scattering gallery with a skin texture<a name="-subsurface-scattering-gallery-with-a-skin-texture"></a>
+
+![Alt text](Images/skin_without_sss.png?raw=true "Without Subsurface scattering")
+
+*Without Subsurface scattering*
+
+![Alt text](Images/skin_with_sss.png?raw=true "With Subsurface scattering")
+
+*With Subsurface scattering*
+
+![Alt text](Images/skin_sss_only.png?raw=true "Subsurface scattering only")
+
+*Subsurface scattering only*
+
+![Alt text](Images/skin_sss_only_x3.png?raw=true "Subsurface scattering x3")
+
+*Subsurface scattering x3*
 
 # Building the project<a name="-building-the-project"></a>
 
