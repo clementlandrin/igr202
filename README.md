@@ -199,7 +199,7 @@ The subsurface scattering contribution is exponentially decreasing as the distan
 
 *With Subsurface scattering*
 
-![Alt text](Images/skin_sss_only.png?raw=true "Subsurface scattering only")
+![Alt text](Images/skin_only_sss.png?raw=true "Subsurface scattering only")
 
 *Subsurface scattering only*
 
