@@ -20,6 +20,7 @@ WARNING : OpenGl 4.5 is needed to run the project.
     * [Depth mapping](#-depth_mapping)
     * [Rendering the distance traveled by the light](#-rendering_the_distance_traveled_by_the_light)
     * [Subsurface scattering contribution](#-subsurface_scattering_contribution)
+    * [Subsurface scattering gallery](#-subsurface-scattering-gallery-with-a-skin-texture)
 * [Building the project](#-building_the_project)
 * [Running the project](#-running_the_project)
 
