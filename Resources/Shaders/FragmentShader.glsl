@@ -141,18 +141,6 @@ vec3 computeLiFromLight(LightSource lightSource, vec3 fLightPosition, vec3 n){
 	float distanceTraveled = computeDistanceTraveledByLight();
 	vec3 contributionFromSSS =  vec3(abs(dot(n,wi))*computeEnergyFromSubsurfaceScattering(distanceTraveled));
 
-	/*float distanceToEnhancedRed = 0.30;
-	if (dot(n,wi)<0 && distanceTraveled < distanceToEnhancedRed / 2.0)
-	{
-		float enhancedFactor = 1.0 + (distanceToEnhancedRed/2.0 - distanceTraveled)*2.0/distanceToEnhancedRed;
-		contributionFromSSS = pow(enhancedFactor, 3.0) * vec3(contributionFromSSS.x*2.0, contributionFromSSS.y*enhancedFactor, contributionFromSSS.z*enhancedFactor);
-	}
-	else if (dot(n,wi)<0 && distanceTraveled < distanceToEnhancedRed)
-	{
-		float enhancedFactor = 1.0 + (distanceToEnhancedRed - distanceTraveled)*2.0/distanceToEnhancedRed;
-		contributionFromSSS = vec3(contributionFromSSS.x*enhancedFactor, contributionFromSSS.y, contributionFromSSS.z);
-	}*/
-
 	if (subsurfaceScattering == 1)
 	{
 		Li = Li + contributionFromSSS;
